@@ -24,6 +24,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+import os
 
 import sys
 import ctypes
@@ -43,21 +44,22 @@ LINUX=False
 MAC=False
 MINGW=False
 MSVC=False
+DLL_DIR = os.path.dirname(__file__)
 if sys.platform.find('linux') != -1:
-    _lib = ctypes.cdll['./libtcod/libtcod.so']
+    _lib = ctypes.cdll[os.path.join(DLL_DIR, 'libtcod.so')]
     LINUX=True
 elif sys.platform.find('darwin') != -1:
-    _lib = ctypes.cdll['./libtcod/libtcod.dylib']
+    _lib = ctypes.cdll[os.path.join(DLL_DIR, 'libtcod.dylib')]
     MAC = True
 elif sys.platform.find('haiku') != -1:
-    _lib = ctypes.cdll['./libtcod/libtcod.so']
+    _lib = ctypes.cdll[os.path.join(DLL_DIR, 'libtcod.so')]
     HAIKU = True
 else:
     try:
-        _lib = ctypes.cdll['./libtcod-mingw.dll']
+        _lib = ctypes.cdll[os.path.join(DLL_DIR, 'libtcod-mingw.dll')]
         MINGW=True
     except WindowsError:
-        _lib = ctypes.cdll['./libtcod-VS.dll']
+        _lib = ctypes.cdll[os.path.join(DLL_DIR, 'libtcod-VS.dll')]
         MSVC=True
     # On Windows, ctypes doesn't work well with function returning structs,
     # so we have to user the _wrapper functions instead
@@ -694,8 +696,8 @@ LEFT=0
 RIGHT=1
 CENTER=2
 # initializing the console
-def console_init_root(width, height, title, fullscreen=False, renderer=RENDERER_SDL):
-    _lib.TCOD_console_init_root(width, height, c_char_p(title), fullscreen, renderer)
+def console_init_root(w, h, title, fullscreen=False, renderer=RENDERER_SDL):
+    _lib.TCOD_console_init_root(w, h, c_char_p(title), fullscreen, renderer)
 
 def console_get_width(con):
     return _lib.TCOD_console_get_width(con)
