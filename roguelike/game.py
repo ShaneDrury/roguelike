@@ -1,7 +1,11 @@
 import os
 
+import yaml
+
 from core.entity import Entity, Component
 from core.graphics import Graphics
+from core.npc import NPC
+from core.player import Player
 
 
 class GameInput(Component):
@@ -11,9 +15,8 @@ class GameInput(Component):
 
 
 class Game(Entity):
-    def __init__(self, keys, player, font, colour, settings):
+    def __init__(self, keys, font, colour, settings):
         self.keys = keys
-        self.player = player
         self.font = font
         self.colour = colour
         self.settings = settings
@@ -21,7 +24,26 @@ class Game(Entity):
         self._input = GameInput()
         self.exited = False
         self.graphics = Graphics(**self.settings.SCREEN)
-        self.player_graphics = Graphics(**self.settings.SCREEN)
+        self.consts = self.get_consts()
+        self.entities = self.init_entities()
+
+    def init_entities(self):
+        npc_graphics = self.graphics
+        npc = NPC(self.consts['npc'])
+
+        player_graphics = self.graphics
+        player = Player(self.consts['player'])
+
+        return [{'key': 'player', 'obj': player, 'gfx': player_graphics},
+                {'key': 'npc', 'obj': npc, 'gfx': npc_graphics}]
+
+    def get_consts(self):
+        consts_list = ['player', 'npc']
+        consts = {}
+        for c in consts_list:
+            with open(os.path.join(self.settings.VARS_FOLDER, c + '.yml'), 'r') as f:
+                consts[c] = yaml.load(f)
+        return consts
 
     def main(self):
         self.font.set_custom_font(
@@ -30,7 +52,7 @@ class Game(Entity):
         )
         self.graphics.init_root(title='Roguelike', fullscreen=False,
                                 **self.settings.SCREEN)
-        self.player_graphics.set_default_foreground(self.colour.white)
+
         while not self.exited:
             self.input()
             self.render()
@@ -38,19 +60,24 @@ class Game(Entity):
 
     def input(self):
         self._input.update(self.keys, self)
-        self.player.input(self.keys)
+        for entity in self.entities:
+            try:
+                entity['obj'].input(self.keys)
+            except AttributeError:
+                pass
 
     def render(self):
-        self.player.render(self.player_graphics)
-        self.player_graphics.flush()
-        self.player_graphics.blit(x=0, y=0,
-                                  w=self.settings.SCREEN['w'],
-                                  h=self.settings.SCREEN['h'],
-                                  dst=0,
-                                  xdst=0, ydst=0)
-        self.player.post_blit(self.player_graphics)
+        for entity in self.entities:
+            entity['gfx'].set_default_foreground(
+                getattr(self.colour, self.consts[entity['key']]['colour'])
+            )
 
-        # TODO: We have to blit just before the flush, but the Player can't do it
-        # since they should have no control over where they render to.
-        # The Game object does that. The player can render to player_graphics and
-        # we can then tell it to
+            entity['obj'].render(entity['gfx'])
+            entity['gfx'].blit(x=0, y=0,
+                               w=self.settings.SCREEN['w'],
+                               h=self.settings.SCREEN['h'],
+                               dst=0,
+                               xdst=0, ydst=0)
+        self.graphics.flush()
+        for entity in self.entities:
+            entity['obj'].post_blit(entity['gfx'])

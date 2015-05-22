@@ -4,4 +4,4 @@ SCREEN = {'w': 80, 'h': 50}
 LIMIT_FPS = 20
 STATIC_DIR = 'static'
 FONT_DIR = os.path.join(STATIC_DIR, 'font')
-VARS_FILE = 'vars.yml'
+VARS_FOLDER = 'bestiary'
