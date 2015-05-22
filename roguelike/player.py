@@ -4,7 +4,9 @@ from roguelike.core.entity import Entity, Component
 class PlayerRender(Component):
     def update(self, graphics, entity):
         graphics.put_char(entity.x, entity.y, entity.char)
-        graphics.flush()
+
+
+    def post_blit(self, graphics, entity):
         graphics.put_char(entity.x, entity.y, ' ')
 
 
@@ -34,6 +36,9 @@ class Player(Entity):
 
     def render(self, graphics):
         self._render.update(graphics, self)
+
+    def post_blit(self, graphics):
+        self._render.post_blit(graphics, self)
 
     def input(self, keys):
         self._input.update(keys, self)
