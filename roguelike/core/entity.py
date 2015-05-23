@@ -2,6 +2,8 @@ from collections import namedtuple
 
 Point = namedtuple('Point', ['x', 'y'])
 
+EntityCollection = namedtuple('EntityCollection', ['obj', 'gfx'])
+
 
 class Entity(object):
     def __init__(self):
