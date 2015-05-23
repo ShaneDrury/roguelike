@@ -21,15 +21,16 @@ class GameInput(Component):
 
 class Game(object):
     def __init__(self, settings):
-        self.keys = Keys()
         self.font = Font()
         self.settings = settings
 
+        self.consts = self.get_consts()
         self._input = GameInput()
         self.exited = False
         self.colour = Colour()
         self.graphics = Graphics(self.colour, **self.settings.SCREEN)
-        self.consts = self.get_consts()
+
+        self.keys = Keys(self.consts['keys'])
         self.entities = self.init_entities()
 
     def init_entities(self):
@@ -46,7 +47,7 @@ class Game(object):
                 'map': EntityCollection(map_, map_graphics)}
 
     def get_consts(self):
-        consts_list = ['player', 'npc', 'map']
+        consts_list = ['player', 'npc', 'map', 'keys']
         consts = {}
         for c in consts_list:
             with open(os.path.join(self.settings.VARS_FOLDER, c + '.yml'), 'r') as f:

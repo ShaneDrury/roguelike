@@ -2,23 +2,12 @@ from core.mixin import PassthroughMixin
 
 
 class Keys(PassthroughMixin):
-    def __init__(self):
+    def __init__(self, keys_dict):
         super(Keys, self).__init__()
         self.prefix = "KEY_"
         self._cached_key = None
         self.checking = True
-
-        self.keys_dict = {
-            'UP': ['k', 'KEY_UP', 'KEY_KP8'],
-            'DOWN': ['j', 'KEY_DOWN', 'KEY_KP2'],
-            'LEFT': ['h', 'KEY_LEFT', 'KEY_KP4'],
-            'RIGHT': ['l', 'KEY_RIGHT', 'KEY_KP6'],
-            'UP_LEFT': ['y', 'KEY_KP7'],
-            'UP_RIGHT': ['u', 'KEY_KP9'],
-            'DOWN_LEFT': ['b', 'KEY_KP1'],
-            'DOWN_RIGHT': ['n', 'KEY_KP3'],
-            'QUIT': ['KEY_ESCAPE']
-        }
+        self.keys_dict = keys_dict
 
     def wait_for_keypress(self, flush):
         return self.t.console_wait_for_keypress(flush)

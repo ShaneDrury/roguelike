@@ -1,0 +1,31 @@
+---
+UP:
+  - k
+  - KEY_UP
+  - KEY_KP8
+DOWN:
+  - j
+  - KEY_DOWN
+  - KEY_KP2
+LEFT:
+  - h
+  - KEY_LEFT
+  - KEY_KP4
+RIGHT:
+  - l
+  - KEY_RIGHT
+  - KEY_KP6
+UP_LEFT:
+  - y
+  - KEY_KP7
+UP_RIGHT:
+  - u
+  - KEY_KP9
+DOWN_LEFT:
+  - b
+  - KEY_KP1
+DOWN_RIGHT:
+  - n
+  - KEY_KP3
+QUIT:
+  - KEY_ESCAPE

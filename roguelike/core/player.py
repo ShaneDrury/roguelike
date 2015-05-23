@@ -25,33 +25,26 @@ class SimpleRender(Component):
 
 
 class PlayerInput(Component):
-    @staticmethod
-    def update(keys, entity, world):
+    def __init__(self):
+        self.keys_dict = {
+            'RIGHT': Point(1, 0),
+            'LEFT': Point(-1, 0),
+            'UP': Point(0, -1),
+            'DOWN': Point(0, 1),
+            'UP_LEFT': Point(-1, -1),
+            'UP_RIGHT': Point(1, -1),
+            'DOWN_RIGHT': Point(1, 1),
+            'DOWN_LEFT': Point(-1, 1)
+        }
+
+    def update(self, keys, entity, world):
         key = keys.check_for_keypress(keys.KEY_PRESSED)
         prev = entity.pos
         x, y = entity.pos
-        if key == 'RIGHT':
-            x += 1
-        elif key == 'LEFT':
-            x -= 1
-        elif key == 'UP':
-            y -= 1
-        elif key == 'DOWN':
-            y += 1
-        elif key == 'UP_LEFT':
-            x -= 1
-            y -= 1
-        elif key == 'UP_RIGHT':
-            x += 1
-            y -= 1
-        elif key == 'DOWN_RIGHT':
-            x += 1
-            y += 1
-        elif key == 'DOWN_LEFT':
-            x -= 1
-            y += 1
-        entity.pos = Point(x, y)
-        world.resolve_collision(entity, prev)
+        diff = self.keys_dict.get(key, None)
+        if diff:
+            entity.pos = Point(x + diff.x, y + diff.y)
+            world.resolve_collision(entity, prev)
 
 
 class Player(Entity):
