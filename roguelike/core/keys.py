@@ -40,7 +40,7 @@ class Keys(PassthroughMixin):
         else:
             for k, v in self.keys_dict.iteritems():
                 for button in v:
-                    if not button.islower():
+                    if button.startswith('KEY_'):
                         if getattr(self, button) == key.vk:
                             processed_key = k
                             break
