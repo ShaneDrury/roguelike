@@ -98,7 +98,7 @@ class Game(object):
                     entity.pos = prev
                 continue
             try:
-                if entity.pos == target.pos:
+                if entity.pos == target.pos and target.blocking:
                     entity.pos = prev
             except AttributeError:
                 pass

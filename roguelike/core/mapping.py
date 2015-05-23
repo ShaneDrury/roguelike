@@ -10,7 +10,6 @@ class Tile(Entity):
     def __init__(self, blocked=False, block_sight=None):
         super(Tile, self).__init__()
         self._render = TileRender()
-
         self.blocked = blocked
         self.block_sight = blocked if block_sight is None else block_sight
 
@@ -20,6 +19,7 @@ class MapRender(Component):
         for x, row in enumerate(entity.tiles):
             for y, tile in enumerate(row):
                 colour = entity.colour_wall if tile.block_sight else entity.colour_ground
+                graphics.put_char(x, y, '#')
                 graphics.set_char_background(x, y, getattr(graphics.colour, colour))
 
 
