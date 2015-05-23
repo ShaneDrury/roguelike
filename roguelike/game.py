@@ -1,9 +1,11 @@
 import os
 
 import yaml
+from core.colour import Colour
 
-from core.entity import Entity, Component
+from core.entity import Component
 from core.graphics import Graphics
+from core.mapping import Map
 from core.npc import NPC
 from core.player import Player
 
@@ -14,31 +16,34 @@ class GameInput(Component):
         entity.exited = key.vk == keys.KEY_ESCAPE
 
 
-class Game(Entity):
-    def __init__(self, keys, font, colour, settings):
+class Game(object):
+    def __init__(self, keys, font, settings):
         self.keys = keys
         self.font = font
-        self.colour = colour
         self.settings = settings
 
         self._input = GameInput()
         self.exited = False
-        self.graphics = Graphics(**self.settings.SCREEN)
+        self.colour = Colour()
+        self.graphics = Graphics(self.colour, **self.settings.SCREEN)
         self.consts = self.get_consts()
         self.entities = self.init_entities()
 
     def init_entities(self):
         npc_graphics = self.graphics
-        npc = NPC(self.consts['npc'])
-
         player_graphics = self.graphics
+        map_graphics = self.graphics
+
+        npc = NPC(self.consts['npc'])
         player = Player(self.consts['player'])
+        map_ = Map(self.consts['map'])
 
         return [{'key': 'player', 'obj': player, 'gfx': player_graphics},
-                {'key': 'npc', 'obj': npc, 'gfx': npc_graphics}]
+                {'key': 'npc', 'obj': npc, 'gfx': npc_graphics},
+                {'key': 'map', 'obj': map_, 'gfx': map_graphics}]
 
     def get_consts(self):
-        consts_list = ['player', 'npc']
+        consts_list = ['player', 'npc', 'map']
         consts = {}
         for c in consts_list:
             with open(os.path.join(self.settings.VARS_FOLDER, c + '.yml'), 'r') as f:
@@ -67,17 +72,19 @@ class Game(Entity):
                 pass
 
     def render(self):
+        render_params = {
+            'player': {'x': 0, 'y': 0, 'w': 0, 'h': 0, 'dst': 0, 'xdst': 0, 'ydst': 0},
+        }
+        render_params['npc'] = render_params['player']
         for entity in self.entities:
-            entity['gfx'].set_default_foreground(
-                getattr(self.colour, self.consts[entity['key']]['colour'])
-            )
-
-            entity['obj'].render(entity['gfx'])
-            entity['gfx'].blit(x=0, y=0,
-                               w=self.settings.SCREEN['w'],
-                               h=self.settings.SCREEN['h'],
-                               dst=0,
-                               xdst=0, ydst=0)
+            extra = render_params.get(entity['key'], {})
+            entity['obj'].render(entity['gfx'], **extra)
         self.graphics.flush()
         for entity in self.entities:
-            entity['obj'].post_blit(entity['gfx'])
+            try:
+                entity['obj'].post_render(entity['gfx'])
+            except AttributeError:
+                pass
+
+    def resolve_collision(self):
+        pass

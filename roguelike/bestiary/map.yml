@@ -1,0 +1,6 @@
+---
+wall: yellow
+ground: black
+rect:
+  w: 80
+  h: 45

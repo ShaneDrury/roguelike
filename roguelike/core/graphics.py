@@ -2,9 +2,10 @@ import libtcod
 
 
 class Graphics(object):
-    def __init__(self, w, h):
+    def __init__(self, colour, w, h):
         self.t = libtcod
         self.con = self.t.console_new(w, h)
+        self.colour = colour
 
     def put_char(self, x, y, char, flag=None):
         self.t.console_put_char(self.con, x, y, char, flag=flag or self.t.BKGND_DEFAULT)
@@ -24,3 +25,6 @@ class Graphics(object):
 
     def blit(self, x, y, w, h, dst, xdst, ydst, ffade=1.0, bfade=1.0):
         self.t.console_blit(self.con, x, y, w, h, dst, xdst, ydst, ffade, bfade)
+
+    def set_char_background(self, x, y, col, flag=None):
+        self.t.console_set_char_background(self.con, x, y, col, flag or self.t.BKGND_SET)
