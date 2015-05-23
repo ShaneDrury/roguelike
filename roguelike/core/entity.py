@@ -11,8 +11,8 @@ class Entity(object):
         self._render = None
         self.blocking = True
 
-    def render(self, graphics, **kwargs):
-        self._render.update(graphics, self, **kwargs)
+    def render(self, graphics, fov, **kwargs):
+        self._render.update(graphics, fov, self, **kwargs)
 
 
 class Component(object):

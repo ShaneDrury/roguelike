@@ -1,9 +1,14 @@
 ---
 wall:
-  bg_colour: lighter_gray
   char: '#'
+  visible_colour: lighter_gray
+  invisible_colour: dark_gray
   char_colour: black
-ground: darkest_green
+floor:
+  char: '.'
+  visible_colour: black
+  invisible_colour: darkest_blue
+  char_colour: white
 rect:
   w: 80
   h: 45

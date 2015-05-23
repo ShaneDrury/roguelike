@@ -2,11 +2,12 @@ from roguelike.core.entity import Entity, Component, Point
 
 
 class SimpleRender(Component):
-    def update(self, graphics, entity, **kwargs):
-        self._set_colour(graphics, entity)
+    def update(self, graphics, fov, entity, **kwargs):
         x, y = entity.pos
-        graphics.put_char(x, y, entity.char)
-        self._blit(graphics, **kwargs)
+        if fov.is_in_fov(x, y):
+            self._set_colour(graphics, entity)
+            graphics.put_char(x, y, entity.char)
+            self._blit(graphics, **kwargs)
 
     @staticmethod
     def _set_colour(graphics, entity):
@@ -19,9 +20,10 @@ class SimpleRender(Component):
         graphics.blit(x, y, w, h, dst, xdst, ydst)
 
     @staticmethod
-    def post_render(graphics, entity):
+    def post_render(graphics, fov, entity):
         x, y = entity.pos
-        graphics.put_char(x, y, ' ')
+        if fov.is_in_fov(x, y):
+            graphics.put_char(x, y, ' ')
 
 
 class PlayerInput(Component):
@@ -45,6 +47,7 @@ class PlayerInput(Component):
         if diff:
             entity.pos = Point(x + diff.x, y + diff.y)
             world.resolve_collision(entity, prev)
+            world.fov.recompute(entity.pos.x, entity.pos.y)
 
 
 class Player(Entity):
@@ -52,12 +55,12 @@ class Player(Entity):
         super(Player, self).__init__()
         self._render = SimpleRender()
         self._input = PlayerInput()
-        self.pos = Point(25, 23)
+        self.pos = Point(25, 20)
         self.consts = consts
         self.char = consts['char']
 
-    def post_render(self, graphics):
-        self._render.post_render(graphics, self)
+    def post_render(self, graphics, fov):
+        self._render.post_render(graphics, fov, self)
 
     def input(self, keys, world):
         self._input.update(keys, self, world)

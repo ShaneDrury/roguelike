@@ -1,10 +1,12 @@
+from collections import OrderedDict
 import os
 
 import yaml
-from core.colour import Colour
 
+from core.colour import Colour
 from core.entity import Component, EntityCollection
 from core.font import Font
+from core.fov import FOV
 from core.graphics import Graphics
 from core.keys import Keys
 from core.mapping import Map
@@ -32,6 +34,9 @@ class Game(object):
 
         self.keys = Keys(self.consts['keys'])
         self.entities = self.init_entities()
+        self.fov = FOV(self.entities['map'].obj.tiles)
+        player = self.entities['player'].obj
+        self.fov.recompute(player.pos.x, player.pos.y)
 
     def init_entities(self):
         npc_graphics = self.graphics
@@ -42,9 +47,11 @@ class Game(object):
         player = Player(self.consts['player'])
         map_ = Map(self.consts['map'])
 
-        return {'player': EntityCollection(player, player_graphics),
-                'npc': EntityCollection(npc, npc_graphics),
-                'map': EntityCollection(map_, map_graphics)}
+        return OrderedDict([
+            ('player', EntityCollection(player, player_graphics)),
+            ('npc', EntityCollection(npc, npc_graphics)),
+            ('map', EntityCollection(map_, map_graphics)),
+        ])
 
     def get_consts(self):
         consts_list = ['player', 'npc', 'map', 'keys']
@@ -81,11 +88,11 @@ class Game(object):
         render_params['npc'] = render_params['player']
         for k, ent in self.entities.iteritems():
             extra = render_params.get(k, {})
-            ent.obj.render(ent.gfx, **extra)
+            ent.obj.render(ent.gfx, self.fov, **extra)
         self.graphics.flush()
-        for k, ent in self.entities.iteritems():
+        for ent in self.entities.items():
             try:
-                ent.obj.post_render(ent.gfx)
+                ent.obj.post_render(ent.gfx, self.fov)
             except AttributeError:
                 pass
 

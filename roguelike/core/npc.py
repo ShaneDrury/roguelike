@@ -14,5 +14,5 @@ class NPC(Entity):
         self.consts = consts
         self.char = consts['char']
 
-    def post_render(self, graphics):
-        self._render.post_render(graphics, self)
+    def post_render(self, graphics, fov):
+        self._render.post_render(graphics, fov, self)
