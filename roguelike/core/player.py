@@ -8,21 +8,25 @@ class SimpleRender(Component):
         graphics.put_char(x, y, entity.char)
         self._blit(graphics, **kwargs)
 
-    def _set_colour(self, graphics, entity):
+    @staticmethod
+    def _set_colour(graphics, entity):
         graphics.set_default_foreground(
             getattr(graphics.colour, entity.consts.get('colour', 'white'))
         )
 
-    def _blit(self, graphics, x, y, w, h, dst, xdst, ydst):
+    @staticmethod
+    def _blit(graphics, x, y, w, h, dst, xdst, ydst):
         graphics.blit(x, y, w, h, dst, xdst, ydst)
 
-    def post_render(self, graphics, entity):
+    @staticmethod
+    def post_render(graphics, entity):
         x, y = entity.pos
         graphics.put_char(x, y, ' ')
 
 
 class PlayerInput(Component):
-    def update(self, keys, entity, world):
+    @staticmethod
+    def update(keys, entity, world):
         key = keys.check_for_keypress(keys.KEY_PRESSED)
         prev = entity.pos
         x, y = entity.pos

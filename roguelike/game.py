@@ -13,7 +13,8 @@ from core.player import Player
 
 
 class GameInput(Component):
-    def update(self, keys, game):
+    @staticmethod
+    def update(keys, game):
         key = keys.check_for_keypress(keys.KEY_RELEASED)
         game.exited = key.vk == keys.KEY_ESCAPE
 
