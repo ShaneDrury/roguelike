@@ -54,7 +54,7 @@ class Game(object):
 
     def main(self):
         self.font.set_custom_font(
-            os.path.join(self.settings.FONT_DIR, 'arial10x10.png'),
+            os.path.join(self.settings.FONT_DIR, 'arial12x12.png'),
             self.font.FONT_TYPE_GREYSCALE | self.font.FONT_LAYOUT_TCOD
         )
         self.graphics.init_root(title='Roguelike', fullscreen=False,

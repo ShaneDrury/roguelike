@@ -19,7 +19,11 @@ class MapRender(Component):
         for x, row in enumerate(entity.tiles):
             for y, tile in enumerate(row):
                 colour = entity.colour_wall if tile.block_sight else entity.colour_ground
-                graphics.put_char(x, y, '#')
+                if tile.blocked:
+                    graphics.set_default_foreground(
+                        getattr(graphics.colour, entity.consts['wall_char_colour'])
+                    )
+                    graphics.put_char(x, y, entity.consts['wall_char'])
                 graphics.set_char_background(x, y, getattr(graphics.colour, colour))
 
 

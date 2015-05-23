@@ -1,6 +1,8 @@
 ---
-wall: yellow
-ground: black
+wall: lighter_gray
+ground: darkest_green
+wall_char: '#'
+wall_char_colour: black
 rect:
   w: 80
   h: 45
