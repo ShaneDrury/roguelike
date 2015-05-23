@@ -4,22 +4,24 @@ import yaml
 from core.colour import Colour
 
 from core.entity import Component
+from core.font import Font
 from core.graphics import Graphics
+from core.keys import Keys
 from core.mapping import Map
 from core.npc import NPC
 from core.player import Player
 
 
 class GameInput(Component):
-    def update(self, keys, entity):
+    def update(self, keys, game):
         key = keys.check_for_keypress(keys.KEY_RELEASED)
-        entity.exited = key.vk == keys.KEY_ESCAPE
+        game.exited = key.vk == keys.KEY_ESCAPE
 
 
 class Game(object):
-    def __init__(self, keys, font, settings):
-        self.keys = keys
-        self.font = font
+    def __init__(self, settings):
+        self.keys = Keys()
+        self.font = Font()
         self.settings = settings
 
         self._input = GameInput()
@@ -37,6 +39,8 @@ class Game(object):
         npc = NPC(self.consts['npc'])
         player = Player(self.consts['player'])
         map_ = Map(self.consts['map'])
+
+        # TODO: Make it key-value pairs of name and namedtuple
 
         return [{'key': 'player', 'obj': player, 'gfx': player_graphics},
                 {'key': 'npc', 'obj': npc, 'gfx': npc_graphics},
@@ -66,10 +70,9 @@ class Game(object):
     def input(self):
         self._input.update(self.keys, self)
         for entity in self.entities:
-            try:
-                entity['obj'].input(self.keys)
-            except AttributeError:
-                pass
+            obj = entity['obj']
+            if hasattr(obj, 'input'):
+                obj.input(self.keys, self)
 
     def render(self):
         render_params = {
@@ -86,5 +89,18 @@ class Game(object):
             except AttributeError:
                 pass
 
-    def resolve_collision(self):
-        pass
+    def resolve_collision(self, entity, prev):
+        for other in self.entities:
+            target = other['obj']
+            if target is entity:
+                continue
+            if other['key'] == 'map':
+                x, y = entity.pos
+                if target.tiles[x][y].blocked:
+                    entity.pos = prev
+                continue
+            try:
+                if entity.pos == target.pos:
+                    entity.pos = prev
+            except AttributeError:
+                pass

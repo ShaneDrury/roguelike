@@ -1,4 +1,4 @@
-from core.entity import Entity
+from core.entity import Entity, Point
 from core.player import SimpleRender
 
 
@@ -9,8 +9,7 @@ class NPCRender(SimpleRender):
 class NPC(Entity):
     def __init__(self, consts):
         super(NPC, self).__init__()
-        self.x = 25
-        self.y = 0
+        self.pos = Point(25, 0)
         self._render = NPCRender()
         self.consts = consts
         self.char = consts['char']

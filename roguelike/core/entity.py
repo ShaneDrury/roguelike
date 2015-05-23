@@ -1,3 +1,8 @@
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+
+
 class Entity(object):
     def __init__(self):
         self._input = None
