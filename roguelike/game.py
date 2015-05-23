@@ -76,7 +76,7 @@ class Game(object):
 
     def input(self):
         self._input.update(self.keys, self)
-        for k, ent in self.entities.iteritems():
+        for k, ent in self.entities.items():
             obj = ent.obj
             if hasattr(obj, 'input'):
                 obj.input(self.keys, self)
@@ -86,18 +86,13 @@ class Game(object):
             'player': {'x': 0, 'y': 0, 'w': 0, 'h': 0, 'dst': 0, 'xdst': 0, 'ydst': 0},
         }
         render_params['npc'] = render_params['player']
-        for k, ent in self.entities.iteritems():
+        for k, ent in self.entities.items():
             extra = render_params.get(k, {})
             ent.obj.render(ent.gfx, self.fov, **extra)
         self.graphics.flush()
-        for ent in self.entities.items():
-            try:
-                ent.obj.post_render(ent.gfx, self.fov)
-            except AttributeError:
-                pass
 
     def resolve_collision(self, entity, prev):
-        for k, other in self.entities.iteritems():
+        for k, other in self.entities.items():
             target = other.obj
             if target is entity:
                 continue

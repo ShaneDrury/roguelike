@@ -19,12 +19,6 @@ class SimpleRender(Component):
     def _blit(graphics, x, y, w, h, dst, xdst, ydst):
         graphics.blit(x, y, w, h, dst, xdst, ydst)
 
-    @staticmethod
-    def post_render(graphics, fov, entity):
-        x, y = entity.pos
-        if fov.is_in_fov(x, y):
-            graphics.put_char(x, y, ' ')
-
 
 class PlayerInput(Component):
     def __init__(self):
