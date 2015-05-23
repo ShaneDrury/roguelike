@@ -1,4 +1,5 @@
 from core.entity import Entity, Component
+from core.rect import Rect
 
 
 class TileRender(Component):
@@ -34,13 +35,23 @@ class Map(Entity):
         self.consts = consts
         self._render = MapRender()
         self.rect = consts['rect']
-        self.tiles = [[Tile() for _ in range(self.rect['h'])]
-                      for _ in range(self.rect['w'])]
-
-        self.tiles[30][22].blocked = True
-        self.tiles[30][22].block_sight = True
-        self.tiles[50][22].blocked = True
-        self.tiles[50][22].block_sight = True
-
+        self.tiles = self._generate_map()
         self.colour_wall = self.consts['wall']['bg_colour']
         self.colour_ground = self.consts['ground']
+
+    def _generate_map(self):
+        tiles = [[Tile(blocked=True) for _ in range(self.rect['h'])]
+                 for _ in range(self.rect['w'])]
+        room1 = Rect(20, 15, 10, 15)
+        room2 = Rect(50, 15, 10, 15)
+        rooms = [room1, room2]
+        for room in rooms:
+            self._carve_room(room, tiles)
+        self._carve_room(Rect(25, 23, 30, 2), tiles)
+        return tiles
+
+    def _carve_room(self, room, tiles):
+        for x in range(room.x1, room.x2):
+            for y in range(room.y1, room.y2):
+                tiles[x][y].blocked = False
+                tiles[x][y].block_sight = False

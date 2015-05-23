@@ -16,7 +16,7 @@ class GameInput(Component):
     @staticmethod
     def update(keys, game):
         key = keys.check_for_keypress(keys.KEY_RELEASED)
-        game.exited = key.vk == keys.KEY_ESCAPE
+        game.exited = key == 'QUIT'
 
 
 class Game(object):
@@ -62,8 +62,8 @@ class Game(object):
                                 **self.settings.SCREEN)
 
         while not self.exited:
-            self.input()
             self.render()
+            self.input()
             self.keys.flush()
 
     def input(self):

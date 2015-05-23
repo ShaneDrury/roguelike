@@ -30,13 +30,25 @@ class PlayerInput(Component):
         key = keys.check_for_keypress(keys.KEY_PRESSED)
         prev = entity.pos
         x, y = entity.pos
-        if key.vk == keys.KEY_RIGHT:
+        if key == 'RIGHT':
             x += 1
-        elif key.vk == keys.KEY_LEFT:
+        elif key == 'LEFT':
             x -= 1
-        elif key.vk == keys.KEY_UP:
+        elif key == 'UP':
             y -= 1
-        elif key.vk == keys.KEY_DOWN:
+        elif key == 'DOWN':
+            y += 1
+        elif key == 'UP_LEFT':
+            x -= 1
+            y -= 1
+        elif key == 'UP_RIGHT':
+            x += 1
+            y -= 1
+        elif key == 'DOWN_RIGHT':
+            x += 1
+            y += 1
+        elif key == 'DOWN_LEFT':
+            x -= 1
             y += 1
         entity.pos = Point(x, y)
         world.resolve_collision(entity, prev)
@@ -47,7 +59,7 @@ class Player(Entity):
         super(Player, self).__init__()
         self._render = SimpleRender()
         self._input = PlayerInput()
-        self.pos = Point(0, 0)
+        self.pos = Point(25, 23)
         self.consts = consts
         self.char = consts['char']
 
