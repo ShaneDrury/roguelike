@@ -1,8 +1,9 @@
 ---
-wall: lighter_gray
+wall:
+  bg_colour: lighter_gray
+  char: '#'
+  char_colour: black
 ground: darkest_green
-wall_char: '#'
-wall_char_colour: black
 rect:
   w: 80
   h: 45
