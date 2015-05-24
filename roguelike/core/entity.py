@@ -10,6 +10,7 @@ class Entity(object):
         self._input = None
         self._render = None
         self.blocking = True
+        self.id = "{}-{}".format(self.__class__.__name__, id(self))
 
     def render(self, graphics, fov, **kwargs):
         self._render.update(graphics, fov, self, **kwargs)

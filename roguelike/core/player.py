@@ -1,5 +1,8 @@
+import logging
 from roguelike.core.entity import Entity, Component, Point
 
+
+log = logging.getLogger('rogue.player')
 
 class SimpleRender(Component):
     def update(self, graphics, fov, entity, **kwargs):
@@ -52,9 +55,10 @@ class Player(Entity):
         self.pos = Point(25, 20)
         self.consts = consts
         self.char = consts['char']
-
-    def post_render(self, graphics, fov):
-        self._render.post_render(graphics, fov, self)
+        self.is_player = True
 
     def input(self, keys, world):
         self._input.update(keys, self, world)
+
+    def collide(self, entity):
+        log.debug("{} hit {}".format(entity.id, self.id))

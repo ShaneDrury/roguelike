@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import logging
 import os
 
 import yaml
@@ -12,6 +13,15 @@ from core.keys import Keys
 from core.mapping import Map
 from core.npc import NPC
 from core.player import Player
+
+
+log = logging.getLogger('rogue')
+log.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+ch.setLevel(logging.DEBUG)
+log.addHandler(ch)
 
 
 class GameInput(Component):
@@ -76,7 +86,7 @@ class Game(object):
 
     def input(self):
         self._input.update(self.keys, self)
-        for k, ent in self.entities.items():
+        for ent in self.entities.values():
             obj = ent.obj
             if hasattr(obj, 'input'):
                 obj.input(self.keys, self)
@@ -96,13 +106,12 @@ class Game(object):
             target = other.obj
             if target is entity:
                 continue
-            if k == 'map':
+            if k == 'map':  # Hit wall
                 x, y = entity.pos
                 if target.tiles[x][y].blocked:
                     entity.pos = prev
                 continue
-            try:
-                if entity.pos == target.pos and target.blocking:
-                    entity.pos = prev
-            except AttributeError:
-                pass
+            if entity.pos == target.pos and target.blocking:
+                entity.pos = prev
+                target.collide(entity)
+                entity.collide(target)
