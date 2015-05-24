@@ -19,6 +19,8 @@ class Tile(Entity):
 class MapRender(Component):
     @staticmethod
     def update(graphics, fov, entity):
+        # TODO: Maybe pass some of this on to the Tile
+        # Can do FSM stuff to simplify it
         for x, row in enumerate(entity.tiles):
             for y, tile in enumerate(row):
                 wall = tile.block_sight

@@ -8,6 +8,6 @@ setup(
     license='',
     author='Shane Drury',
     author_email='shane.r.drury@gmail.com',
-    install_requires=['pyyaml'],
+    install_requires=['pyyaml', 'fysom'],
     description=''
 )

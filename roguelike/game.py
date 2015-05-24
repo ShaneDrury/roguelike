@@ -85,8 +85,14 @@ class Game(object):
 
         while not self.exited:
             self.render()
+            self.update()
             self.input()
             self.keys.flush()
+
+    def update(self):
+        for entity in self.entities.values():
+            if hasattr(entity.obj, 'update'):
+                entity.obj.update()
 
     def input(self):
         self._input.update(self.keys, self)
