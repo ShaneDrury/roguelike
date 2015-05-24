@@ -61,4 +61,4 @@ class Player(Entity):
         self._input.update(keys, self, world)
 
     def collide(self, entity):
-        log.debug("{} hit {}".format(entity.id, self.id))
+        log.debug("{} hit {}".format(entity, self))

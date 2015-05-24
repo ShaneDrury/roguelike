@@ -27,7 +27,10 @@ log.addHandler(ch)
 class GameInput(Component):
     @staticmethod
     def update(keys, game):
+        game.key_pressed = False
         key = keys.check_for_keypress(keys.KEY_RELEASED)
+        if key:
+            game.key_pressed = True
         game.exited = key == 'QUIT'
 
 
@@ -41,6 +44,7 @@ class Game(object):
         self.exited = False
         self.colour = Colour()
         self.graphics = Graphics(self.colour, **self.settings.SCREEN)
+        self.key_pressed = False
 
         self.keys = Keys(self.consts['keys'])
         self.entities = self.init_entities()
@@ -86,10 +90,11 @@ class Game(object):
 
     def input(self):
         self._input.update(self.keys, self)
-        for ent in self.entities.values():
-            obj = ent.obj
-            if hasattr(obj, 'input'):
-                obj.input(self.keys, self)
+        if self.key_pressed:
+            for ent in self.entities.values():
+                obj = ent.obj
+                if hasattr(obj, 'input'):
+                    obj.input(self.keys, self)
 
     def render(self):
         render_params = {
@@ -112,6 +117,8 @@ class Game(object):
                     entity.pos = prev
                 continue
             if entity.pos == target.pos and target.blocking:
+                log.debug("{} overlapping {} {} prev={}".
+                          format(entity, target, entity.pos, prev))
                 entity.pos = prev
                 target.collide(entity)
                 entity.collide(target)

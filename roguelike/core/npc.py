@@ -1,17 +1,34 @@
 import logging
+from math import sqrt, ceil, copysign
 from core.entity import Entity, Point, Component
 from core.player import SimpleRender
 
 
 log = logging.getLogger('rogue.npc')
 
+
 class NPCRender(SimpleRender):
     pass
 
+
 class NPCInput(Component):
-    def update(self, keys, entity, world):
+    @staticmethod
+    def update(keys, entity, world):
         if world.fov.is_in_fov(entity.pos.x, entity.pos.y):
-            log.debug("Is in FOV")
+            # Move towards player
+            player = world.entities['player'].obj.pos
+            x, y = player
+            prev = entity.pos
+            nx, ny = prev
+            dx = x - nx
+            dy = y - ny
+            if not(dx == 0 and dy == 0):
+                distance = sqrt(dx * dx + dy * dy)
+                mx = int(copysign(ceil(abs(dx / distance)), dx))
+                my = int(copysign(ceil(abs(dy / distance)), dy))
+                if not (mx == 0 and my == 0):
+                    entity.pos = Point(nx + mx, ny + my)
+                    world.resolve_collision(entity, prev)
 
 
 class NPC(Entity):
@@ -28,7 +45,7 @@ class NPC(Entity):
     def collide(self, entity):
         if entity.is_player:
             self.hp -= 1
-            log.debug("{} hit {}".format(entity.id, self.id))
+            log.debug("{} hit {}".format(entity, self))
 
     def input(self, keys, world):
         self._input.update(keys, self, world)
