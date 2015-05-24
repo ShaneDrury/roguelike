@@ -33,7 +33,8 @@ class PlayerInput(Component):
             'UP_LEFT': Point(-1, -1),
             'UP_RIGHT': Point(1, -1),
             'DOWN_RIGHT': Point(1, 1),
-            'DOWN_LEFT': Point(-1, 1)
+            'DOWN_LEFT': Point(-1, 1),
+            'WAIT': Point(0, 0)
         }
 
     def update(self, keys, entity, world):
@@ -56,6 +57,8 @@ class Player(Entity):
         self.consts = consts
         self.char = consts['char']
         self.is_player = True
+
+        self.attack = consts['attack']
 
     def input(self, keys, world):
         self._input.update(keys, self, world)

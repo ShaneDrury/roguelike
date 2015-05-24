@@ -39,8 +39,9 @@ class SleepingInput(Component):
 
 class NPCUpdate(Component):
     @staticmethod
-    def update(state, entity):
-        pass
+    def update(fsm, state, entity):
+        if entity.hp <= 0:
+            entity.alive = False
 
 
 class NPC(Entity):
@@ -58,7 +59,7 @@ class NPC(Entity):
         self.hp = consts['hp']
         self.alive = True
         self.fsm = Fysom({
-            'initial': 'sleeping',
+            'initial': 'hunting',
             'events': [
                 {'name': 'wake', 'src': 'sleeping', 'dst': 'wandering'},
                 {'name': 'sleep', 'src': 'wandering', 'dst': 'sleeping'},
@@ -68,12 +69,12 @@ class NPC(Entity):
         })
 
     def update(self):
-        self._update.update(self.fsm, self)
+        self._update.update(self.fsm, self.fsm.current, self)
 
     def collide(self, entity):
         if entity.is_player:
-            self.hp -= 1
-            log.debug("{} hit {}".format(entity, self))
+            self.hp -= entity.attack
+            log.debug("{} hit {} - {}".format(entity, self, self.hp))
 
     def input(self, keys, world):
         self._input[self.fsm.current].update(keys, self, world)

@@ -24,6 +24,10 @@ ch.setLevel(logging.DEBUG)
 log.addHandler(ch)
 
 
+def noop(*args, **kwargs):
+    pass
+
+
 class GameInput(Component):
     @staticmethod
     def update(keys, game):
@@ -84,23 +88,26 @@ class Game(object):
                                 **self.settings.SCREEN)
 
         while not self.exited:
-            self.render()
+            self.render()  # TODO: put this after keys
             self.update()
             self.input()
             self.keys.flush()
 
     def update(self):
-        for entity in self.entities.values():
-            if hasattr(entity.obj, 'update'):
-                entity.obj.update()
+        if self.key_pressed:
+            for entity in self.entities.values():
+                getattr(entity.obj, 'update', noop)()
+        self.entities = OrderedDict([
+            (k, v) for k, v in self.entities.iteritems() if getattr(v.obj, 'alive', True)
+        ])
 
     def input(self):
+        # TODO: Add update_render state on different tick
         self._input.update(self.keys, self)
         if self.key_pressed:
             for ent in self.entities.values():
                 obj = ent.obj
-                if hasattr(obj, 'input'):
-                    obj.input(self.keys, self)
+                getattr(obj, 'input', noop)(self.keys, self)
 
     def render(self):
         render_params = {
@@ -122,9 +129,8 @@ class Game(object):
                 if target.tiles[x][y].blocked:
                     entity.pos = prev
                 continue
-            if entity.pos == target.pos and target.blocking:
+            if entity.pos == target.pos and target.blocking:  # Hit entity
                 log.debug("{} overlapping {} {} prev={}".
                           format(entity, target, entity.pos, prev))
                 entity.pos = prev
                 target.collide(entity)
-                entity.collide(target)

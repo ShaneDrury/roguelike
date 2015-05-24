@@ -27,5 +27,7 @@ DOWN_LEFT:
 DOWN_RIGHT:
   - n
   - KEY_KP3
+WAIT:
+  - .
 QUIT:
   - KEY_ESCAPE
