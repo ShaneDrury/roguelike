@@ -31,6 +31,7 @@ class HuntingInput(Component):
                     entity.pos = Point(nx + mx, ny + my)
                     world.resolve_collision(entity, prev)
 
+
 class SleepingInput(Component):
     @staticmethod
     def update(keys, entity, world):

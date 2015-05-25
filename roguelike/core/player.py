@@ -4,6 +4,7 @@ from roguelike.core.entity import Entity, Component, Point
 
 log = logging.getLogger('rogue.player')
 
+
 class SimpleRender(Component):
     def update(self, graphics, fov, entity, **kwargs):
         x, y = entity.pos

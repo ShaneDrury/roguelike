@@ -56,6 +56,20 @@ class Game(object):
         player = self.entities['player'].obj
         self.fov.recompute(player.pos.x, player.pos.y)
 
+    def main(self):
+        self.font.set_custom_font(
+            os.path.join(self.settings.FONT_DIR, 'arial12x12.png'),
+            self.font.FONT_TYPE_GREYSCALE | self.font.FONT_LAYOUT_TCOD
+        )
+        self.graphics.init_root(title='Roguelike', fullscreen=False,
+                                **self.settings.SCREEN)
+
+        while not self.exited:
+            self.render()  # TODO: put this after keys
+            self.update()
+            self.input()
+            self.keys.flush()
+
     def init_entities(self):
         npc_graphics = self.graphics
         player_graphics = self.graphics
@@ -79,24 +93,11 @@ class Game(object):
                 consts[c] = yaml.load(f)
         return consts
 
-    def main(self):
-        self.font.set_custom_font(
-            os.path.join(self.settings.FONT_DIR, 'arial12x12.png'),
-            self.font.FONT_TYPE_GREYSCALE | self.font.FONT_LAYOUT_TCOD
-        )
-        self.graphics.init_root(title='Roguelike', fullscreen=False,
-                                **self.settings.SCREEN)
-
-        while not self.exited:
-            self.render()  # TODO: put this after keys
-            self.update()
-            self.input()
-            self.keys.flush()
-
     def update(self):
         if self.key_pressed:
             for entity in self.entities.values():
-                getattr(entity.obj, 'update', noop)()
+                update = getattr(entity.obj, 'update', noop)
+                update()
         self.entities = OrderedDict([
             (k, v) for k, v in self.entities.iteritems() if getattr(v.obj, 'alive', True)
         ])
@@ -107,7 +108,8 @@ class Game(object):
         if self.key_pressed:
             for ent in self.entities.values():
                 obj = ent.obj
-                getattr(obj, 'input', noop)(self.keys, self)
+                input_ = getattr(obj, 'input', noop)
+                input_(self.keys, self)
 
     def render(self):
         render_params = {
