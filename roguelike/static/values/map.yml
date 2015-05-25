@@ -12,3 +12,9 @@ floor:
 rect:
   w: 80
   h: 45
+room_num:
+  avg: 10
+  std: 3
+room_size:
+  avg: 10
+  std: 4

@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import logging
 import os
+import random
 
 import yaml
 
@@ -78,6 +79,8 @@ class Game(object):
         npc = NPC(self.consts['npc'])
         player = Player(self.consts['player'])
         map_ = Map(self.consts['map'])
+        player.pos = map_.rooms[0].center
+        npc.pos = map_.rooms[random.randint(1, len(map_.rooms))].center
 
         return OrderedDict([
             ('player', EntityCollection(player, player_graphics)),

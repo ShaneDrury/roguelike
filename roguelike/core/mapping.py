@@ -1,5 +1,10 @@
+import logging
+import random
 from core.entity import Entity, Component
 from core.rect import Rect
+
+
+log = logging.getLogger('rogue.mapping')
 
 
 class TileRender(Component):
@@ -58,6 +63,7 @@ class Map(Entity):
         self.consts = consts
         self._render = MapRender()
         self.rect = consts['rect']
+        self.rooms = []
         self.tiles = self._generate_map()
         self.colours = {
             'wall': {'visible': self.consts['wall']['visible_colour'],
@@ -69,12 +75,44 @@ class Map(Entity):
     def _generate_map(self):
         tiles = [[Tile(blocked=True) for _ in range(self.rect['h'])]
                  for _ in range(self.rect['w'])]
-        room1 = Rect(20, 15, 10, 15)
-        room2 = Rect(50, 15, 10, 15)
-        for room in [room1, room2]:
+        room_num_params = self.consts['room_num']
+        room_num = int(random.gauss(room_num_params['avg'], room_num_params['std']))
+        log.debug("Num rooms: {}".format(room_num))
+        room_size_params = self.consts['room_size']
+
+        for n in range(room_num):
+            while True:
+                w = int(random.gauss(room_size_params['avg'],
+                                     room_size_params['std']))
+                h = int(random.gauss(room_size_params['avg'],
+                                     room_size_params['std']))
+                x = random.randint(0, self.consts['rect']['w'] - w - 1)
+                y = random.randint(0, self.consts['rect']['h'] - h - 1)
+                room = Rect(x, y, w, h)
+                for r in self.rooms:
+                    if room.intersect(r):
+                        break
+                else:
+                    self.rooms.append(room)
+                    break
+
+        for n, room in enumerate(self.rooms):
             self._carve_room(room, tiles)
-        self._carve_room(Rect(25, 23, 30, 1), tiles)
+            if n != 0:
+                (prev_x, prev_y) = self.rooms[n-1].center
+                if random.randint(0, 1):
+                    self._carve_h_tunnel(prev_x, room.center.x, prev_y, tiles)
+                    self._carve_v_tunnel(prev_y, room.center.y, room.center.x, tiles)
+                else:
+                    self._carve_v_tunnel(prev_y, room.center.y, prev_x, tiles)
+                    self._carve_h_tunnel(prev_x, room.center.x, room.center.y, tiles)
         return tiles
+
+    def _carve_h_tunnel(self, x1, x2, y, tiles):
+        self._carve_room(Rect(x1, y, x2 - x1, 1), tiles)
+
+    def _carve_v_tunnel(self, y1, y2, x, tiles):
+        self._carve_room(Rect(x, y1, 1, y2 - y1), tiles)
 
     def _carve_room(self, room, tiles):
         for x in range(room.x1, room.x2):
