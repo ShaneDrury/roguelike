@@ -24,6 +24,11 @@ class Tile(Entity):
 class MapRender(Component):
     @staticmethod
     def update(graphics, fov, entity):
+        for room in entity.rooms:
+            x, y = room.center
+            graphics.put_char(x, y, 'X')
+            graphics.blit(x, y, 0, 0, 0, 0, 0)
+
         # TODO: Maybe pass some of this on to the Tile
         # Can do FSM stuff to simplify it
         for x, row in enumerate(entity.tiles):
@@ -86,33 +91,39 @@ class Map(Entity):
                                      room_size_params['std']))
                 h = int(random.gauss(room_size_params['avg'],
                                      room_size_params['std']))
-                x = random.randint(0, self.consts['rect']['w'] - w - 1)
-                y = random.randint(0, self.consts['rect']['h'] - h - 1)
+                x = random.randint(1, self.consts['rect']['w'] - w - 1)
+                y = random.randint(1, self.consts['rect']['h'] - h - 1)
                 room = Rect(x, y, w, h)
                 for r in self.rooms:
-                    if room.intersect(r):
+                    if room.intersect(r, border=1):
+                        log.debug("Rejected {}".format(r))
                         break
                 else:
+                    log.debug("Appending {}".format(room))
                     self.rooms.append(room)
+                    log.debug("Room {}: ({}, {}, {}, {})".format(n+1, x, y, w, h))
                     break
 
         for n, room in enumerate(self.rooms):
             self._carve_room(room, tiles)
+            # TODO: Can make this a rolling window
             if n != 0:
                 (prev_x, prev_y) = self.rooms[n-1].center
                 if random.randint(0, 1):
+                    log.debug("Carving tunnel")
                     self._carve_h_tunnel(prev_x, room.center.x, prev_y, tiles)
                     self._carve_v_tunnel(prev_y, room.center.y, room.center.x, tiles)
                 else:
+                    log.debug("Carving tunnel")
                     self._carve_v_tunnel(prev_y, room.center.y, prev_x, tiles)
                     self._carve_h_tunnel(prev_x, room.center.x, room.center.y, tiles)
         return tiles
 
     def _carve_h_tunnel(self, x1, x2, y, tiles):
-        self._carve_room(Rect(x1, y, x2 - x1, 1), tiles)
+        self._carve_room(Rect(min(x1, x2), y, abs(x2 - x1) + 1, 1), tiles)
 
     def _carve_v_tunnel(self, y1, y2, x, tiles):
-        self._carve_room(Rect(x, y1, 1, y2 - y1), tiles)
+        self._carve_room(Rect(x, min(y1, y2), 1, abs(y2 - y1) + 1), tiles)
 
     def _carve_room(self, room, tiles):
         for x in range(room.x1, room.x2):

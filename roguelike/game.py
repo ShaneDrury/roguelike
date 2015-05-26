@@ -80,12 +80,13 @@ class Game(object):
         player = Player(self.consts['player'])
         map_ = Map(self.consts['map'])
         player.pos = map_.rooms[0].center
-        npc.pos = map_.rooms[random.randint(1, len(map_.rooms))].center
+        npc_room = random.randint(1, len(map_.rooms)-1)
+        npc.pos = map_.rooms[npc_room].center
 
         return OrderedDict([
+            ('map', EntityCollection(map_, map_graphics)),
             ('player', EntityCollection(player, player_graphics)),
             ('npc', EntityCollection(npc, npc_graphics)),
-            ('map', EntityCollection(map_, map_graphics)),
         ])
 
     def get_consts(self):

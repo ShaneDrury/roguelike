@@ -17,4 +17,4 @@ room_num:
   std: 3
 room_size:
   avg: 10
-  std: 4
+  std: 2
