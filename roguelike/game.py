@@ -1,19 +1,16 @@
 from collections import OrderedDict
 import logging
 import os
-import random
 
 import yaml
 
 from core.colour import Colour
-from core.entity import Component, EntityCollection
+from core.entity import Component
 from core.font import Font
 from core.fov import FOV
 from core.graphics import Graphics
 from core.keys import Keys
-from core.mapping import Map
-from core.npc import NPC
-from core.player import Player
+from core.level import Level
 
 
 log = logging.getLogger('rogue')
@@ -51,8 +48,11 @@ class Game(object):
         self.graphics = Graphics(self.colour, **self.settings.SCREEN)
         self.key_pressed = False
 
+        self.level_handler = Level()
         self.keys = Keys(self.consts['keys'])
-        self.entities = self.init_entities()
+        self.entities = self.level_handler.init_entities(self, self.consts)
+        self.render_params = self.init_render_params()
+
         self.fov = FOV(self.entities['map'].obj.tiles)
         player = self.entities['player'].obj
         self.fov.recompute(player.pos.x, player.pos.y)
@@ -71,26 +71,18 @@ class Game(object):
             self.input()
             self.keys.flush()
 
-    def init_entities(self):
-        npc_graphics = self.graphics
-        player_graphics = self.graphics
-        map_graphics = self.graphics
-
-        npc = NPC(self.consts['npc'])
-        player = Player(self.consts['player'])
-        map_ = Map(self.consts['map'])
-        player.pos = map_.rooms[0].center
-        npc_room = random.randint(1, len(map_.rooms)-1)
-        npc.pos = map_.rooms[npc_room].center
-
-        return OrderedDict([
-            ('map', EntityCollection(map_, map_graphics)),
-            ('player', EntityCollection(player, player_graphics)),
-            ('npc', EntityCollection(npc, npc_graphics)),
-        ])
+    def init_render_params(self):
+        render_params = {
+            'player': {'x': 0, 'y': 0, 'w': 0, 'h': 0, 'dst': 0, 'xdst': 0, 'ydst': 0},
+        }
+        for k, entity in self.entities.iteritems():
+            if k in ['map', 'player']:
+                continue
+            render_params[k] = render_params['player']
+        return render_params
 
     def get_consts(self):
-        consts_list = ['player', 'npc', 'map', 'keys']
+        consts_list = ['player', 'monsters', 'map', 'keys']
         consts = {}
         for c in consts_list:
             with open(os.path.join(self.settings.VARS_FOLDER, c + '.yml'), 'r') as f:
@@ -116,12 +108,8 @@ class Game(object):
                 input_(self.keys, self)
 
     def render(self):
-        render_params = {
-            'player': {'x': 0, 'y': 0, 'w': 0, 'h': 0, 'dst': 0, 'xdst': 0, 'ydst': 0},
-        }
-        render_params['npc'] = render_params['player']
         for k, ent in self.entities.items():
-            extra = render_params.get(k, {})
+            extra = self.render_params.get(k, {})
             ent.obj.render(ent.gfx, self.fov, **extra)
         self.graphics.flush()
 

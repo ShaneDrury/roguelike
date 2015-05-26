@@ -1,0 +1,9 @@
+---
+rat:
+  char: r
+  colour: white
+  hp: 5
+goblin:
+  char: g
+  colour: green
+  hp: 10

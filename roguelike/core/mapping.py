@@ -96,10 +96,8 @@ class Map(Entity):
                 room = Rect(x, y, w, h)
                 for r in self.rooms:
                     if room.intersect(r, border=1):
-                        log.debug("Rejected {}".format(r))
                         break
                 else:
-                    log.debug("Appending {}".format(room))
                     self.rooms.append(room)
                     log.debug("Room {}: ({}, {}, {}, {})".format(n+1, x, y, w, h))
                     break
@@ -110,11 +108,9 @@ class Map(Entity):
             if n != 0:
                 (prev_x, prev_y) = self.rooms[n-1].center
                 if random.randint(0, 1):
-                    log.debug("Carving tunnel")
                     self._carve_h_tunnel(prev_x, room.center.x, prev_y, tiles)
                     self._carve_v_tunnel(prev_y, room.center.y, room.center.x, tiles)
                 else:
-                    log.debug("Carving tunnel")
                     self._carve_v_tunnel(prev_y, room.center.y, prev_x, tiles)
                     self._carve_h_tunnel(prev_x, room.center.x, room.center.y, tiles)
         return tiles
