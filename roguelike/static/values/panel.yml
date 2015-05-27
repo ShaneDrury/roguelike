@@ -2,3 +2,7 @@
 rect:  # TODO: change this to a ratio
   w: 80
   h: 7
+
+bar:
+  w: 20
+  h: 7

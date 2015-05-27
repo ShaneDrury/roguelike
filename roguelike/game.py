@@ -50,9 +50,11 @@ class Game(object):
 
         self.level_handler = Level()
         self.keys = Keys(self.consts['keys'])
-        self.panel = Panel()
+        self.panel = Panel(self.consts['panel'])
+        self.panel_graphics = Graphics(self.colour, w=self.settings.SCREEN['w'],
+                                       h=self.consts['panel']['rect']['h'])
         self.entities = self.level_handler.init_entities(self, self.consts)
-        self.entities['panel'] = EntityCollection(self.panel, self.graphics)
+        self.entities['panel'] = EntityCollection(self.panel, self.panel_graphics)
         self.render_params = self.init_render_params()
 
         self.fov = FOV(self.entities['map'].obj.tiles)
@@ -125,8 +127,9 @@ class Game(object):
                 if target.tiles[x][y].blocked:
                     entity.pos = prev
                 continue
-            if entity.pos == target.pos and target.blocking:  # Hit entity
-                log.debug("{} overlapping {} {} prev={}".
-                          format(entity, target, entity.pos, prev))
-                entity.pos = prev
-                target.collide(entity)
+            if hasattr(target, 'pos'):
+                if entity.pos == target.pos and target.blocking:  # Hit entity
+                    log.debug("{} overlapping {} {} prev={}".
+                              format(entity, target, entity.pos, prev))
+                    entity.pos = prev
+                    target.collide(entity)
