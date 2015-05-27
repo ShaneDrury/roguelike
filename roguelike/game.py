@@ -5,13 +5,13 @@ import os
 import yaml
 
 from core.colour import Colour
-from core.entity import Component
+from core.entity import Component, EntityCollection
 from core.font import Font
 from core.fov import FOV
 from core.graphics import Graphics
 from core.keys import Keys
 from core.level import Level
-
+from core.panel import Panel
 
 log = logging.getLogger('rogue')
 log.setLevel(logging.DEBUG)
@@ -50,7 +50,9 @@ class Game(object):
 
         self.level_handler = Level()
         self.keys = Keys(self.consts['keys'])
+        self.panel = Panel()
         self.entities = self.level_handler.init_entities(self, self.consts)
+        self.entities['panel'] = EntityCollection(self.panel, self.graphics)
         self.render_params = self.init_render_params()
 
         self.fov = FOV(self.entities['map'].obj.tiles)
@@ -82,7 +84,7 @@ class Game(object):
         return render_params
 
     def get_consts(self):
-        consts_list = ['player', 'monsters', 'map', 'keys', 'level']
+        consts_list = ['player', 'monsters', 'map', 'keys', 'level', 'panel']
         consts = {}
         for c in consts_list:
             with open(os.path.join(self.settings.VARS_FOLDER, c + '.yml'), 'r') as f:
