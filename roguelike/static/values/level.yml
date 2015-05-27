@@ -1,0 +1,10 @@
+---
+1:
+  num_monsters:
+    avg: 20
+    std: 1
+  allowed_monsters:
+    rat:
+      weight: 5
+    goblin:
+      weight: 1

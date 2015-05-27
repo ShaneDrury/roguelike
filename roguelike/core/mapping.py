@@ -121,7 +121,8 @@ class Map(Entity):
     def _carve_v_tunnel(self, y1, y2, x, tiles):
         self._carve_room(Rect(x, min(y1, y2), 1, abs(y2 - y1) + 1), tiles)
 
-    def _carve_room(self, room, tiles):
+    @staticmethod
+    def _carve_room(room, tiles):
         for x in range(room.x1, room.x2):
             for y in range(room.y1, room.y2):
                 tiles[x][y].blocked = False

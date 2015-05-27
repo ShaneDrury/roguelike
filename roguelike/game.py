@@ -82,7 +82,7 @@ class Game(object):
         return render_params
 
     def get_consts(self):
-        consts_list = ['player', 'monsters', 'map', 'keys']
+        consts_list = ['player', 'monsters', 'map', 'keys', 'level']
         consts = {}
         for c in consts_list:
             with open(os.path.join(self.settings.VARS_FOLDER, c + '.yml'), 'r') as f:

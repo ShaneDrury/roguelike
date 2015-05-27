@@ -14,7 +14,7 @@ class NPCRender(SimpleRender):
 
 class HuntingInput(Component):
     @staticmethod
-    def update(keys, entity, world):
+    def update(entity, world):
         if world.fov.is_in_fov(entity.pos.x, entity.pos.y):
             # TODO: Make this an actual path finder
             # Move towards player
@@ -48,7 +48,7 @@ class NPCUpdate(Component):
 class NPC(Entity):
     def __init__(self, consts):
         super(NPC, self).__init__()
-        self.pos = Point(55, 23)
+        self.pos = None
         self._render = NPCRender()
         self._update = NPCUpdate()
         self._input = {
@@ -59,6 +59,7 @@ class NPC(Entity):
         self.char = consts['char']
         self.hp = consts['hp']
         self.alive = True
+        self.is_player = False
         self.fsm = Fysom({
             'initial': 'hunting',
             'events': [
@@ -78,4 +79,4 @@ class NPC(Entity):
             log.debug("{} hit {} - {}".format(entity, self, self.hp))
 
     def input(self, keys, world):
-        self._input[self.fsm.current].update(keys, self, world)
+        self._input[self.fsm.current].update(self, world)
