@@ -15,7 +15,7 @@ log = logging.getLogger('rogue.mapping')
 
 class MonsterGenerator(Component):
     @staticmethod
-    def update(map_, player, entities, graphics, consts, level):
+    def update(map_, player, graphics, consts, level):
         level_consts = consts['level'][level]
         monsters = consts['monsters']
         num_monsters_const = level_consts['num_monsters']
@@ -24,6 +24,7 @@ class MonsterGenerator(Component):
         allowed_monsters = level_consts['allowed_monsters']
         population = [k for k, v in allowed_monsters.iteritems()
                       for _ in range(v['weight'])]
+        entities = {}
         for n in range(num_monsters):
             p = random.choice(population)
             npc = NPC(monsters[p])
@@ -32,9 +33,8 @@ class MonsterGenerator(Component):
                 npcx = random.randint(npc_room.x1, npc_room.x2+1)
                 npcy = random.randint(npc_room.y1, npc_room.y2+1)
                 npc.pos = Point(npcx, npcy)
-                npc_entities = {k: v for k, v in entities.iteritems()
-                                if k not in ['map', 'player']}
-                for k, entity in npc_entities.iteritems():
+
+                for k, entity in entities.iteritems():
                     if entity.obj == npc:
                         continue
                     if npc.pos == entity.obj.pos:
@@ -65,6 +65,7 @@ class Level(Component):
             ('map', EntityCollection(map_, map_graphics)),
             ('player', EntityCollection(player, player_graphics)),
         ])
-        entities = self.monster_generator.update(map_, player, entities, world.graphics,
-                                                 consts, self.level)
+        monster_entities = self.monster_generator.update(map_, player, world.graphics,
+                                                         consts, self.level)
+        entities.update(monster_entities)
         return entities
