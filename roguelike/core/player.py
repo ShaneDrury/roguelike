@@ -50,17 +50,17 @@ class PlayerInput(Component):
 
 
 class Player(Entity):
-    def __init__(self, consts):
+    def __init__(self, consts, message):
         super(Player, self).__init__()
         self._render = SimpleRender()
         self._input = PlayerInput()
+        self.message = message
         self.pos = Point(25, 20)
         self.consts = consts
         self.char = consts['char']
         self.is_player = True
         self.hp = 20
         self.max_hp = 20
-
         self.attack = consts['attack']
 
     def input(self, keys, world):
@@ -68,4 +68,5 @@ class Player(Entity):
 
     def collide(self, entity):
         self.hp -= entity.attack
-        log.debug("{} hit {} - {}".format(entity, self, self.hp))
+        self.message.add("{} hit Player for {}".format(entity.name, entity.attack),
+                         'lightest_red')

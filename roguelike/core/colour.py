@@ -23,6 +23,8 @@ class Colour(object):
     def __getattr__(self, item):
         if item in self.allowed:
             return getattr(self.t, item)
+        else:
+            raise AttributeError("No such colour {}".format(item))
 
     allowed = ["black",
                "darkest_grey",

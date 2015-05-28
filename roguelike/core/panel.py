@@ -17,9 +17,12 @@ class BarRender(Component):
 
 
 class MessageRender(Component):
+    # TODO: Probably move this to Message as its component
     @staticmethod
     def render_all(messages, graphics, x):
         for y, (line, colour) in enumerate(messages, start=1):
+            if isinstance(colour, basestring):
+                colour = getattr(graphics.colour, colour)
             graphics.set_default_foreground(colour)
             graphics.print_ex(x, y, graphics.background.BKGND_NONE, graphics.LEFT, line)
 

@@ -46,8 +46,10 @@ class NPCUpdate(Component):
 
 
 class NPC(Entity):
-    def __init__(self, consts):
+    def __init__(self, name, consts, message):
         super(NPC, self).__init__()
+        self.name = name.capitalize()
+        self.message = message
         self.pos = None
         self._render = NPCRender()
         self._update = NPCUpdate()
@@ -77,6 +79,8 @@ class NPC(Entity):
     def collide(self, entity):
         if entity.is_player:
             self.hp -= entity.attack
+            self.message.add("Player hit {} for {}".format(self.name, entity.attack),
+                             'lightest_violet')
             log.debug("{} hit {} - {}".format(entity, self, self.hp))
 
     def input(self, keys, world):
