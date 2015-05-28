@@ -3,7 +3,9 @@ rat:
   char: r
   colour: white
   hp: 5
+  attack: 1
 goblin:
   char: g
   colour: green
   hp: 10
+  attack: 3

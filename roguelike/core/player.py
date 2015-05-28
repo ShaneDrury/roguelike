@@ -58,6 +58,8 @@ class Player(Entity):
         self.consts = consts
         self.char = consts['char']
         self.is_player = True
+        self.hp = 20
+        self.max_hp = 20
 
         self.attack = consts['attack']
 
@@ -65,4 +67,5 @@ class Player(Entity):
         self._input.update(keys, self, world)
 
     def collide(self, entity):
-        log.debug("{} hit {}".format(entity, self))
+        self.hp -= entity.attack
+        log.debug("{} hit {} - {}".format(entity, self, self.hp))

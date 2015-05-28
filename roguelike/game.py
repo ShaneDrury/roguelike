@@ -50,7 +50,7 @@ class Game(object):
 
         self.level_handler = Level()
         self.keys = Keys(self.consts['keys'])
-        self.panel = Panel(self.consts['panel'])
+        self.panel = Panel(self.consts['panel'], self)
         self.panel_graphics = Graphics(self.colour, w=self.settings.SCREEN['w'],
                                        h=self.consts['panel']['rect']['h'])
         self.entities = self.level_handler.init_entities(self, self.consts)
@@ -76,11 +76,17 @@ class Game(object):
             self.keys.flush()
 
     def init_render_params(self):
+        panel_height = self.consts['panel']['rect']['h']
+        screen_height = self.settings.SCREEN['h']
+        panel_y = screen_height - panel_height
         render_params = {
+            'map': {},
             'player': {'x': 0, 'y': 0, 'w': 0, 'h': 0, 'dst': 0, 'xdst': 0, 'ydst': 0},
+            'panel': {'x': 0, 'y': 0, 'w': 0, 'h': panel_height, 'dst': 0,
+                      'xdst': 0, 'ydst': panel_y},
         }
         for k, entity in self.entities.iteritems():
-            if k in ['map', 'player']:
+            if k in render_params.keys():
                 continue
             render_params[k] = render_params['player']
         return render_params

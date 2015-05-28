@@ -6,6 +6,7 @@ class Graphics(object):
     LEFT = 0
     RIGHT = 1
     CENTER = 2
+
     def __init__(self, colour, w, h):
         self.t = libtcod
         self.con = self.t.console_new(w, h)
@@ -17,6 +18,9 @@ class Graphics(object):
 
     def flush(self):
         self.t.console_flush()
+
+    def clear(self):
+        self.t.console_clear(self.con)
 
     def init_root(self, w, h, title, fullscreen=False, renderer=None):
         self.t.console_init_root(w, h, title, fullscreen,

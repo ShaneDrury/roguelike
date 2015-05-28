@@ -58,6 +58,7 @@ class NPC(Entity):
         self.consts = consts
         self.char = consts['char']
         self.hp = consts['hp']
+        self.attack = consts['attack']
         self.alive = True
         self.is_player = False
         self.fsm = Fysom({
