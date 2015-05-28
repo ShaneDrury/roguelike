@@ -1,8 +1,9 @@
 from core.entity import Entity, Component
 
+
 class BarRender(Component):
     @staticmethod
-    def render(x, y, total_width, name, value, maximum, bar_color, back_color, graphics):
+    def bar(x, y, total_width, name, value, maximum, bar_color, back_color, graphics):
         bar_width = int(float(value) / maximum * total_width)
         graphics.set_default_background(back_color)
         graphics.rect(x, y, total_width, 1, False, graphics.background.BKGND_SCREEN)
@@ -15,17 +16,29 @@ class BarRender(Component):
                           name + ': ' + str(value) + '/' + str(maximum))
 
 
+class MessageRender(Component):
+    @staticmethod
+    def render_all(messages, graphics, x):
+        for y, (line, colour) in enumerate(messages, start=1):
+            graphics.set_default_foreground(colour)
+            graphics.print_ex(x, y, graphics.background.BKGND_NONE, graphics.LEFT, line)
+
+
 class PanelRender(Component):
     def __init__(self):
         self.bar_render = BarRender()
+        self.msg_render = MessageRender()
 
     def update(self, consts, graphics, world, **kwargs):
         player_hp = world.entities['player'].obj.hp
         player_max_hp = world.entities['player'].obj.max_hp
+        bar_x = consts['bar']['w']
+        msg_x = bar_x + 2
         self.pre_render(graphics)
-        self.bar_render.render(1, 1, consts['bar']['w'], 'HP', player_hp, player_max_hp,
-                               graphics.colour.light_red, graphics.colour.darker_red,
-                               graphics)
+        self.bar_render.bar(1, 1, bar_x, 'HP', player_hp, player_max_hp,
+                            graphics.colour.light_red, graphics.colour.darker_red,
+                            graphics)
+        self.msg_render.render_all(world.message.messages, graphics, msg_x)
         self._blit(graphics, **kwargs)
 
     @staticmethod

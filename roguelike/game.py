@@ -11,6 +11,7 @@ from core.fov import FOV
 from core.graphics import Graphics
 from core.keys import Keys
 from core.level import Level
+from core.message import Message
 from core.panel import Panel
 
 log = logging.getLogger('rogue')
@@ -60,6 +61,10 @@ class Game(object):
         self.fov = FOV(self.entities['map'].obj.tiles)
         player = self.entities['player'].obj
         self.fov.recompute(player.pos.x, player.pos.y)
+        message_width = self.settings.SCREEN['w'] - self.consts['panel']['bar']['w'] - 2
+        message_height = self.consts['panel']['rect']['h'] - 1
+        self.message = Message(message_width, message_height)
+        self.message.add('Welcome to Roguelike', self.graphics.colour.white)
 
     def main(self):
         self.font.set_custom_font(
