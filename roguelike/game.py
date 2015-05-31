@@ -9,10 +9,13 @@ from core.entity import Component, EntityCollection
 from core.font import Font
 from core.fov import FOV
 from core.graphics import Graphics
+from core.inventory import Inventory
+from core.item import Item
 from core.keys import Keys
 from core.level import Level
 from core.message import Message
 from core.panel import Panel
+from core.turn import Turn
 
 log = logging.getLogger('rogue')
 log.setLevel(logging.DEBUG)
@@ -57,15 +60,29 @@ class Game(object):
         self.level_handler = Level(self.message)
         self.keys = Keys(self.consts['keys'])
         self.panel = Panel(self.consts['panel'], self)
-        self.panel_graphics = Graphics(self.colour, w=self.settings.SCREEN['w'],
+        self.panel_graphics = Graphics(self.colour,
+                                       w=self.settings.SCREEN['w'],
                                        h=self.consts['panel']['rect']['h'])
         self.entities = self.level_handler.init_entities(self, self.consts)
         self.entities['panel'] = EntityCollection(self.panel, self.panel_graphics)
+
+        self.inventory_graphics = Graphics(self.colour,
+                                           w=10,
+                                           h=30)
+        self.inventory = Inventory()
+        self.entities['inventory'] = EntityCollection(self.inventory,
+                                                      self.inventory_graphics)
         self.render_params = self.init_render_params()
 
         self.fov = FOV(self.entities['map'].obj.tiles)
         player = self.entities['player'].obj
+        item_entities = [Item('potion', self.consts['items']['potion'])]
+        for ent in item_entities:
+            ent.fsm.pickup()
+            self.entities[ent.key] = EntityCollection(ent, self.graphics)
+        player.inventory += item_entities
         self.fov.recompute(player.pos.x, player.pos.y)
+        self.turn = Turn(self.consts['actions'])
 
     def main(self):
         self.font.set_custom_font(
@@ -98,7 +115,8 @@ class Game(object):
         return render_params
 
     def get_consts(self):
-        consts_list = ['player', 'monsters', 'map', 'keys', 'level', 'panel']
+        consts_list = ['player', 'monsters', 'map', 'keys', 'level', 'panel', 'items',
+                       'actions']
         consts = {}
         for c in consts_list:
             with open(os.path.join(self.settings.VARS_FOLDER, c + '.yml'), 'r') as f:
@@ -116,12 +134,16 @@ class Game(object):
 
     def input(self):
         # TODO: Add update_render state on different tick
+        # TODO: If player takes action, tick clock forward
+        # until the action cost is done
         self._input.update(self.keys, self)
-        if self.key_pressed:
-            for ent in self.entities.values():
-                obj = ent.obj
-                input_ = getattr(obj, 'input', noop)
-                input_(self.keys, self)
+        self.turn.take_player_action()
+        if not self.turn.blocking:
+            if self.key_pressed:
+                for ent in self.entities.values():
+                    obj = ent.obj
+                    input_ = getattr(obj, 'input', noop)
+                    input_(self.keys, self, self.turn)
 
     def render(self):
         for k, ent in self.entities.items():

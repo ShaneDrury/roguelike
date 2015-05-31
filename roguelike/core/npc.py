@@ -1,9 +1,9 @@
+from functools import partial
 import logging
 from math import sqrt, ceil, copysign
 from fysom import Fysom
 from core.entity import Entity, Point, Component
-from core.player import SimpleRender
-
+from core.render import SimpleRender
 
 log = logging.getLogger('rogue.npc')
 
@@ -13,28 +13,32 @@ class NPCRender(SimpleRender):
 
 
 class HuntingInput(Component):
-    @staticmethod
-    def update(entity, world):
+    def update(self, entity, world, turn):
         if world.fov.is_in_fov(entity.pos.x, entity.pos.y):
-            # TODO: Make this an actual path finder
-            # Move towards player
-            px, py = world.entities['player'].obj.pos
-            prev = entity.pos
-            nx, ny = prev
-            dx = px - nx
-            dy = py - ny
-            if not(dx == 0 and dy == 0):
-                distance = sqrt(dx * dx + dy * dy)
-                mx = int(copysign(ceil(abs(dx / distance)), dx))
-                my = int(copysign(ceil(abs(dy / distance)), dy))
-                if not (mx == 0 and my == 0):
-                    entity.pos = Point(nx + mx, ny + my)
-                    world.resolve_collision(entity, prev)
+            callback = partial(self.move, world, entity)
+            turn.add_action('MOVE', callback, player=False)
+
+    @staticmethod
+    def move(world, entity):
+        # TODO: Make this an actual path finder
+        # Move towards player
+        px, py = world.entities['player'].obj.pos
+        prev = entity.pos
+        nx, ny = prev
+        dx = px - nx
+        dy = py - ny
+        if not(dx == 0 and dy == 0):
+            distance = sqrt(dx * dx + dy * dy)
+            mx = int(copysign(ceil(abs(dx / distance)), dx))
+            my = int(copysign(ceil(abs(dy / distance)), dy))
+            if not (mx == 0 and my == 0):
+                entity.pos = Point(nx + mx, ny + my)
+                world.resolve_collision(entity, prev)
 
 
 class SleepingInput(Component):
     @staticmethod
-    def update(keys, entity, world):
+    def update(keys, entity, world, turn):
         pass
 
 
@@ -83,5 +87,5 @@ class NPC(Entity):
                              'lightest_violet')
             log.debug("{} hit {} - {}".format(entity, self, self.hp))
 
-    def input(self, keys, world):
-        self._input[self.fsm.current].update(self, world)
+    def input(self, keys, world, turn):
+        self._input[self.fsm.current].update(self, world, turn)

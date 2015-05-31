@@ -1,27 +1,10 @@
+from functools import partial
 import logging
+
+from core.render import SimpleRender
 from roguelike.core.entity import Entity, Component, Point
 
-
 log = logging.getLogger('rogue.player')
-
-
-class SimpleRender(Component):
-    def update(self, graphics, fov, entity, **kwargs):
-        x, y = entity.pos
-        if fov.is_in_fov(x, y):
-            self._set_colour(graphics, entity)
-            graphics.put_char(x, y, entity.char)
-            self._blit(graphics, **kwargs)
-
-    @staticmethod
-    def _set_colour(graphics, entity):
-        graphics.set_default_foreground(
-            getattr(graphics.colour, entity.consts.get('colour', 'white'))
-        )
-
-    @staticmethod
-    def _blit(graphics, x, y, w, h, dst, xdst, ydst):
-        graphics.blit(x, y, w, h, dst, xdst, ydst)
 
 
 class PlayerInput(Component):
@@ -38,15 +21,20 @@ class PlayerInput(Component):
             'WAIT': Point(0, 0)
         }
 
-    def update(self, keys, entity, world):
+    def update(self, keys, entity, world, turn):
         key = keys.check_for_keypress(keys.KEY_PRESSED)
         prev = entity.pos
         x, y = entity.pos
         diff = self.keys_dict.get(key, None)
         if diff:
-            entity.pos = Point(x + diff.x, y + diff.y)
-            world.resolve_collision(entity, prev)
-            world.fov.recompute(entity.pos.x, entity.pos.y)
+            callback = partial(self.move, world, entity, diff, x, y, prev)
+            turn.add_action('MOVE', callback, player=True)
+
+    @staticmethod
+    def move(world, entity, diff, x, y, prev):
+        entity.pos = Point(x + diff.x, y + diff.y)
+        world.resolve_collision(entity, prev)
+        world.fov.recompute(entity.pos.x, entity.pos.y)
 
 
 class Player(Entity):
@@ -62,9 +50,10 @@ class Player(Entity):
         self.hp = 20
         self.max_hp = 20
         self.attack = consts['attack']
+        self.inventory = []
 
-    def input(self, keys, world):
-        self._input.update(keys, self, world)
+    def input(self, keys, world, turn):
+        self._input.update(keys, self, world, turn)
 
     def collide(self, entity):
         self.hp -= entity.attack

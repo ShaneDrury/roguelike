@@ -60,6 +60,7 @@ class Panel(Entity):
         self.consts = consts
         self.world = world
         self._render = PanelRender()
+        self.blocked_input = True
 
     def render(self, graphics, fov, **kwargs):
         self._render.update(self.consts, graphics, self.world, **kwargs)
