@@ -34,7 +34,6 @@ class Turn(object):
     def tick(self):
         todo = []
         for action in self.actions:
-            print(action)
             action = Action(action.tick - 1, action.callback, action.player)
             todo.append(action)
         self.actions = todo

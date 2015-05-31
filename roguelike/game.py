@@ -134,8 +134,6 @@ class Game(object):
 
     def input(self):
         # TODO: Add update_render state on different tick
-        # TODO: If player takes action, tick clock forward
-        # until the action cost is done
         self._input.update(self.keys, self)
         self.turn.take_player_action()
         if not self.turn.blocking:
