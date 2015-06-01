@@ -32,9 +32,9 @@ class InventoryRender(Component):
     def __init__(self):
         self.bar_render = BarRender()
 
-    def update(self, graphics, **kwargs):
+    def update(self, graphics, rect, **kwargs):
         self.pre_render(graphics, graphics.colour.desaturated_blue)
-        graphics.rect(0, 0, 30, 50, False, graphics.background.BKGND_SCREEN)
+        graphics.rect(0, 0, rect['w'], rect['h'], False, graphics.background.BKGND_SCREEN)
         self._blit(graphics, **kwargs)
 
     @staticmethod
@@ -48,16 +48,17 @@ class InventoryRender(Component):
 
 
 class Inventory(Entity):
-    def __init__(self, fsm, player):
+    def __init__(self, fsm, player, consts):
         super(Inventory, self).__init__()
         self._render = InventoryRender()
         self._input = InventoryInput()
         self.fsm = fsm
         self.player = player
+        self.rect = consts['rect']
 
     def input(self, keys, world, turn):
         self._input.update(keys, world, self)
 
     def render(self, graphics, fov, **kwargs):
         if self.fsm.current == 'inventory':
-            self._render.update(graphics, **kwargs)
+            self._render.update(graphics, self.rect, **kwargs)

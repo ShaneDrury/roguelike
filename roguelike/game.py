@@ -111,8 +111,10 @@ class Game(object):
         self.render_params = self.init_render_params()
         self.fov = FOV(self.entities['map'].obj.tiles)
         player = self.entities['player'].obj
-        self.inventory_graphics = Graphics(self.colour, w=10, h=30)
-        self.inventory = Inventory(self.fsm, player)
+        self.inventory_graphics = Graphics(self.colour,
+                                           w=self.consts['inventory']['rect']['w'],
+                                           h=self.consts['inventory']['rect']['h'])
+        self.inventory = Inventory(self.fsm, player, self.consts['inventory'])
         self.entities['inventory'] = EntityCollection(self.inventory,
                                                       self.inventory_graphics)
         item_entities = [Item('potion', self.consts['items']['potion'])]
@@ -142,14 +144,16 @@ class Game(object):
         screen_width = self.settings.SCREEN['w']
         screen_height = self.settings.SCREEN['h']
         panel_y = screen_height - panel_height
-        inventory_y = 30
+        inventory_y = 3
+        inventory_width = 10
         render_params = {
             'map': {},
             'player': {'x': 0, 'y': 0, 'w': 0, 'h': 0, 'dst': 0, 'xdst': 0, 'ydst': 0},
             'panel': {'x': 0, 'y': 0, 'w': 0, 'h': panel_height, 'dst': 0,
                       'xdst': 0, 'ydst': panel_y},
             'inventory': {'x': 0, 'y': 0, 'w': 0, 'h': 0, 'dst': 0,
-                          'xdst': screen_width / 2, 'ydst': inventory_y},
+                          'xdst': screen_width / 2 - inventory_width / 2,
+                          'ydst': inventory_y},
         }
         for k, entity in self.entities.iteritems():
             if k in render_params.keys():
@@ -159,7 +163,7 @@ class Game(object):
 
     def get_consts(self):
         consts_list = ['player', 'monsters', 'map', 'keys', 'level', 'panel', 'items',
-                       'actions']
+                       'actions', 'inventory']
         consts = {}
         for c in consts_list:
             with open(os.path.join(self.settings.VARS_FOLDER, c + '.yml'), 'r') as f:
