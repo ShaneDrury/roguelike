@@ -79,6 +79,14 @@ class Game(object):
         self.font = Font()
         self.settings = settings
 
+        self.fsm = Fysom({
+            'initial': 'game',
+            'events': [
+                {'name': 'open_inventory', 'src': 'game', 'dst': 'inventory'},
+                {'name': 'close_inventory', 'src': 'inventory', 'dst': 'game'},
+            ]
+        })
+
         self.consts = self.get_consts()
         self._input = {'game': GameInput(),
                        'inventory': InventoryInput()}
@@ -102,7 +110,7 @@ class Game(object):
         self.entities['panel'] = EntityCollection(self.panel, self.panel_graphics)
 
         self.inventory_graphics = Graphics(self.colour, w=10, h=30)
-        self.inventory = Inventory()
+        self.inventory = Inventory(self.fsm)
         self.entities['inventory'] = EntityCollection(self.inventory,
                                                       self.inventory_graphics)
         self.render_params = self.init_render_params()
@@ -116,13 +124,6 @@ class Game(object):
         player.inventory += item_entities
         self.fov.recompute(player.pos.x, player.pos.y)
         self.turn = Turn(self.consts['actions'])
-        self.fsm = Fysom({
-            'initial': 'game',
-            'events': [
-                {'name': 'open_inventory', 'src': 'game', 'dst': 'inventory'},
-                {'name': 'close_inventory', 'src': 'inventory', 'dst': 'game'},
-            ]
-        })
 
     def main(self):
         self.font.set_custom_font(

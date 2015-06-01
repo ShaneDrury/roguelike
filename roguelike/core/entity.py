@@ -10,7 +10,6 @@ class Entity(object):
         self._input = None
         self._render = None
         self.blocking = True
-        self.blocked_input = False
 
     def __str__(self):
         return "{}-{}".format(self.__class__.__name__, id(self))
