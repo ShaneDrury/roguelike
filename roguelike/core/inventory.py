@@ -1,6 +1,5 @@
 from functools import partial
 from core.entity import Entity, Component
-from core.panel import BarRender
 
 
 class InventoryInput(Component):
@@ -28,13 +27,23 @@ class InventoryInput(Component):
             print(key)
 
 
+class InventoryItemRender(Component):
+    def render(self, graphics, x, y, item):
+        print(graphics, x, y, item)
+        colour = item.consts['colour']
+        graphics.set_default_foreground(colour)
+        graphics.print_ex(x, y, graphics.background.BKGND_NONE, graphics.LEFT, item.name)
+
+
 class InventoryRender(Component):
     def __init__(self):
-        self.bar_render = BarRender()
+        self.inventory_item = InventoryItemRender()
 
-    def update(self, graphics, rect, **kwargs):
+    def update(self, graphics, rect, inventory, **kwargs):
         self.pre_render(graphics, graphics.colour.desaturated_blue)
         graphics.rect(0, 0, rect['w'], rect['h'], False, graphics.background.BKGND_SCREEN)
+        for y, item in enumerate(inventory):
+            self.inventory_item.render(graphics, 0, y, item)
         self._blit(graphics, **kwargs)
 
     @staticmethod
@@ -61,4 +70,4 @@ class Inventory(Entity):
 
     def render(self, graphics, fov, **kwargs):
         if self.fsm.current == 'inventory':
-            self._render.update(graphics, self.rect, **kwargs)
+            self._render.update(graphics, self.rect, self.player.inventory, **kwargs)
