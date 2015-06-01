@@ -1,5 +1,5 @@
 ---
 potion:
-  char: !
+  char: '!'
   colour: red
   description: Health potion

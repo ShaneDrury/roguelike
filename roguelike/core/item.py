@@ -15,6 +15,8 @@ class Item(Entity):
         self.name = name
         self.key = "{}_{}".format(self.name, random.randint(0, 1e8))
         self.consts = consts
+        self.char = consts['char']
+        self.colour = consts['colour']
         self._render = {
             'on_ground': SimpleRender(),
             'inventory': ItemRender()

@@ -29,10 +29,10 @@ class InventoryInput(Component):
 
 class InventoryItemRender(Component):
     def render(self, graphics, x, y, item):
-        print(graphics, x, y, item)
-        colour = item.consts['colour']
+        msg = "{} {}".format(item.char, item.name)
+        colour = item.colour
         graphics.set_default_foreground(colour)
-        graphics.print_ex(x, y, graphics.background.BKGND_NONE, graphics.LEFT, item.name)
+        graphics.print_ex(x, y, graphics.background.BKGND_NONE, graphics.LEFT, msg)
 
 
 class InventoryRender(Component):

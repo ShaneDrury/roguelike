@@ -30,6 +30,8 @@ class Graphics(object):
         return self.t.console_is_window_closed()
 
     def set_default_foreground(self, colour):
+        if isinstance(colour, basestring):
+            colour = getattr(self.colour, colour)
         self.t.console_set_default_foreground(self.con, colour)
 
     def set_default_background(self, col):
