@@ -108,15 +108,13 @@ class Game(object):
                                        h=self.consts['panel']['rect']['h'])
         self.entities = self.level_handler.init_entities(self, self.consts)
         self.entities['panel'] = EntityCollection(self.panel, self.panel_graphics)
-
-        self.inventory_graphics = Graphics(self.colour, w=10, h=30)
-        self.inventory = Inventory(self.fsm)
-        self.entities['inventory'] = EntityCollection(self.inventory,
-                                                      self.inventory_graphics)
         self.render_params = self.init_render_params()
-
         self.fov = FOV(self.entities['map'].obj.tiles)
         player = self.entities['player'].obj
+        self.inventory_graphics = Graphics(self.colour, w=10, h=30)
+        self.inventory = Inventory(self.fsm, player)
+        self.entities['inventory'] = EntityCollection(self.inventory,
+                                                      self.inventory_graphics)
         item_entities = [Item('potion', self.consts['items']['potion'])]
         for ent in item_entities:
             ent.fsm.pickup()
@@ -141,13 +139,17 @@ class Game(object):
 
     def init_render_params(self):
         panel_height = self.consts['panel']['rect']['h']
+        screen_width = self.settings.SCREEN['w']
         screen_height = self.settings.SCREEN['h']
         panel_y = screen_height - panel_height
+        inventory_y = 30
         render_params = {
             'map': {},
             'player': {'x': 0, 'y': 0, 'w': 0, 'h': 0, 'dst': 0, 'xdst': 0, 'ydst': 0},
             'panel': {'x': 0, 'y': 0, 'w': 0, 'h': panel_height, 'dst': 0,
                       'xdst': 0, 'ydst': panel_y},
+            'inventory': {'x': 0, 'y': 0, 'w': 0, 'h': 0, 'dst': 0,
+                          'xdst': screen_width / 2, 'ydst': inventory_y},
         }
         for k, entity in self.entities.iteritems():
             if k in render_params.keys():

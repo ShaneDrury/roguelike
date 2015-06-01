@@ -33,18 +33,13 @@ class InventoryRender(Component):
         self.bar_render = BarRender()
 
     def update(self, graphics, **kwargs):
-        player_hp = 10
-        player_max_hp = 20
-        bar_x = 30
-        self.pre_render(graphics)
-        self.bar_render.bar(1, 1, bar_x, 'HP', player_hp, player_max_hp,
-                            graphics.colour.light_red, graphics.colour.darker_red,
-                            graphics)
+        self.pre_render(graphics, graphics.colour.desaturated_blue)
+        graphics.rect(0, 0, 30, 50, False, graphics.background.BKGND_SCREEN)
         self._blit(graphics, **kwargs)
 
     @staticmethod
-    def pre_render(graphics):
-        graphics.set_default_background(graphics.colour.black)
+    def pre_render(graphics, colour):
+        graphics.set_default_background(colour)
         graphics.clear()
 
     @staticmethod
@@ -53,11 +48,12 @@ class InventoryRender(Component):
 
 
 class Inventory(Entity):
-    def __init__(self, fsm):
+    def __init__(self, fsm, player):
         super(Inventory, self).__init__()
         self._render = InventoryRender()
         self._input = InventoryInput()
         self.fsm = fsm
+        self.player = player
 
     def input(self, keys, world, turn):
         self._input.update(keys, world, self)
