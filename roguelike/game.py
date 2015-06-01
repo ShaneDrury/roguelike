@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import logging
 import os
+from fysom import Fysom
 
 import yaml
 
@@ -52,7 +53,25 @@ class GameInput(Component):
 
 
 class InventoryInput(Component):
-    pass
+    def update(self, keys, game, turn, entities):
+        self.system_keys(keys, game)
+        turn.blocking = True
+        while turn.blocking:
+            turn.take_player_action()
+        if game.key_pressed:
+            ent = entities['inventory']
+            obj = ent.obj
+            input_ = getattr(obj, 'input', noop)
+            input_(keys, game, turn)
+
+    @staticmethod
+    def system_keys(keys, game):
+        game.key_pressed = False
+        key = keys.check_for_keypress(keys.KEY_RELEASED)
+        if key:
+            game.key_pressed = True
+        if key == 'QUIT':
+            game.fsm.close_inventory()
 
 
 class Game(object):
@@ -61,7 +80,8 @@ class Game(object):
         self.settings = settings
 
         self.consts = self.get_consts()
-        self._input = GameInput()
+        self._input = {'game': GameInput(),
+                       'inventory': InventoryInput()}
         self.exited = False
         self.colour = Colour()
         self.graphics = Graphics(self.colour, **self.settings.SCREEN)
@@ -96,6 +116,13 @@ class Game(object):
         player.inventory += item_entities
         self.fov.recompute(player.pos.x, player.pos.y)
         self.turn = Turn(self.consts['actions'])
+        self.fsm = Fysom({
+            'initial': 'game',
+            'events': [
+                {'name': 'open_inventory', 'src': 'game', 'dst': 'inventory'},
+                {'name': 'close_inventory', 'src': 'inventory', 'dst': 'game'},
+            ]
+        })
 
     def main(self):
         self.font.set_custom_font(
@@ -147,7 +174,7 @@ class Game(object):
 
     def input(self):
         # TODO: Add update_render state on different tick
-        self._input.update(self.keys, self, self.turn, self.entities)
+        self._input[self.fsm.current].update(self.keys, self, self.turn, self.entities)
 
     def render(self):
         for k, ent in self.entities.items():

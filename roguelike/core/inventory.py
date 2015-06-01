@@ -1,4 +1,3 @@
-from fysom import Fysom
 from core.entity import Entity, Component
 
 
@@ -8,24 +7,22 @@ class InventoryInput(Component):
             'INVENTORY': self.toggle_inventory
         }
 
-    def update(self, keys, world, entity, fsm, state):
+    def update(self, keys, world, entity):
         key = keys.check_for_keypress(keys.KEY_PRESSED)
         func = self.keys_dict.get(key)
         if func:
-            func(fsm, state)
+            func(world)
 
-    @staticmethod
-    def toggle_inventory(fsm, state):
-        if state == 'closed':
-            fsm.open()
-        else:
-            fsm.close()
+    def toggle_inventory(self, world):
+        if world.fsm.current == 'game':
+            world.fsm.open_inventory()
+        elif world.fsm.current == 'inventory':
+            world.fsm.close_inventory()
 
 
 class InventoryRender(Component):
     def update(self, graphics, fov, entity, **kwargs):
-        if entity.fsm.current == 'opened':
-            print("OPEN")
+        pass
 
 
 class Inventory(Entity):
@@ -34,13 +31,6 @@ class Inventory(Entity):
         self._render = InventoryRender()
         self._input = InventoryInput()
         self.blocked_input = True
-        self.fsm = Fysom({
-            'initial': 'closed',
-            'events': [
-                {'name': 'open', 'src': 'closed', 'dst': 'opened'},
-                {'name': 'close', 'src': 'opened', 'dst': 'closed'}
-            ]
-        })
 
     def input(self, keys, world, turn):
-        self._input.update(keys, world, self, self.fsm, self.fsm.current)
+        self._input.update(keys, world, self)
