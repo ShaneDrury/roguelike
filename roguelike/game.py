@@ -135,13 +135,14 @@ class Game(object):
     def input(self):
         # TODO: Add update_render state on different tick
         self._input.update(self.keys, self)
-        self.turn.take_player_action()
-        if not self.turn.blocking:
-            if self.key_pressed:
-                for ent in self.entities.values():
-                    obj = ent.obj
-                    input_ = getattr(obj, 'input', noop)
-                    input_(self.keys, self, self.turn)
+        self.turn.blocking = True
+        while self.turn.blocking:
+            self.turn.take_player_action()
+        if self.key_pressed:
+            for ent in self.entities.values():
+                obj = ent.obj
+                input_ = getattr(obj, 'input', noop)
+                input_(self.keys, self, self.turn)
 
     def render(self):
         for k, ent in self.entities.items():
