@@ -31,13 +31,28 @@ def noop(*args, **kwargs):
 
 
 class GameInput(Component):
+    def update(self, keys, game, turn, entities):
+        self.system_keys(keys, game)
+        turn.blocking = True
+        while turn.blocking:
+            turn.take_player_action()
+        if game.key_pressed:
+            for ent in entities.values():
+                obj = ent.obj
+                input_ = getattr(obj, 'input', noop)
+                input_(keys, game, turn)
+
     @staticmethod
-    def update(keys, game):
+    def system_keys(keys, game):
         game.key_pressed = False
         key = keys.check_for_keypress(keys.KEY_RELEASED)
         if key:
             game.key_pressed = True
         game.exited = key == 'QUIT'
+
+
+class InventoryInput(Component):
+    pass
 
 
 class Game(object):
@@ -66,9 +81,7 @@ class Game(object):
         self.entities = self.level_handler.init_entities(self, self.consts)
         self.entities['panel'] = EntityCollection(self.panel, self.panel_graphics)
 
-        self.inventory_graphics = Graphics(self.colour,
-                                           w=10,
-                                           h=30)
+        self.inventory_graphics = Graphics(self.colour, w=10, h=30)
         self.inventory = Inventory()
         self.entities['inventory'] = EntityCollection(self.inventory,
                                                       self.inventory_graphics)
@@ -134,15 +147,7 @@ class Game(object):
 
     def input(self):
         # TODO: Add update_render state on different tick
-        self._input.update(self.keys, self)
-        self.turn.blocking = True
-        while self.turn.blocking:
-            self.turn.take_player_action()
-        if self.key_pressed:
-            for ent in self.entities.values():
-                obj = ent.obj
-                input_ = getattr(obj, 'input', noop)
-                input_(self.keys, self, self.turn)
+        self._input.update(self.keys, self, self.turn, self.entities)
 
     def render(self):
         for k, ent in self.entities.items():
