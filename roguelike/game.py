@@ -122,7 +122,7 @@ class Game(object):
         for ent in item_entities:
             ent.fsm.pickup()
             self.entities[ent.key] = EntityCollection(ent, self.graphics)
-        player.inventory += item_entities
+            self.inventory.add(ent)
         self.fov.recompute(player.pos.x, player.pos.y)
         self.turn = Turn(self.consts['actions'])
 

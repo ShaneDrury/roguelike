@@ -1,7 +1,11 @@
+import logging
 import random
 from fysom import Fysom
 from core.entity import Entity, Component
 from core.render import SimpleRender
+
+
+log = logging.getLogger('rogue.item')
 
 
 class ItemRender(Component):
@@ -31,3 +35,6 @@ class Item(Entity):
 
     def render(self, graphics, fov, **kwargs):
         self._render[self.fsm.current].update(graphics, fov, self, **kwargs)
+
+    def use(self, player):
+        log.debug("Using {}".format(self))

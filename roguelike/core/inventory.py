@@ -11,20 +11,21 @@ class InventoryInput(Component):
         else:
             self.handle_keys(world, key, entity)
 
-    def toggle_inventory(self, world):
+    @staticmethod
+    def toggle_inventory(world):
         if world.fsm.current == 'game':
             world.fsm.open_inventory()
         elif world.fsm.current == 'inventory':
             world.fsm.close_inventory()
 
-    def handle_keys(self, world, key, entity):
+    @staticmethod
+    def handle_keys(world, key, entity):
         if world.fsm.current == 'inventory':
-            print(key)
+            entity.use_item(key)
 
 
 class InventoryItemRender(Component):
-    def render(self, graphics, x, y, item):
-        alpha_index = string.ascii_lowercase[y]
+    def render(self, graphics, x, y, item, alpha_index):
         msg = "{})   {} {}".format(alpha_index, item.char, item.name)
         # TODO: Make the string colourful
         # colour = item.colour
@@ -39,9 +40,11 @@ class InventoryRender(Component):
 
     def update(self, graphics, rect, inventory, **kwargs):
         self.pre_render(graphics, graphics.colour.desaturated_blue)
-        graphics.rect(0, 0, rect['w'], rect['h'], False, graphics.background.BKGND_SCREEN)
-        for y, item in enumerate(inventory):
-            self.inventory_item.render(graphics, 0, y, item)
+        graphics.rect(0, 0, rect['w'], rect['h'],
+                      False, graphics.background.BKGND_SCREEN)
+        sorted_keys = sorted(inventory.keys())
+        for y, k in enumerate(sorted_keys):
+            self.inventory_item.render(graphics, 0, y, inventory[k], k)
         self._blit(graphics, **kwargs)
 
     @staticmethod
@@ -62,10 +65,22 @@ class Inventory(Entity):
         self.fsm = fsm
         self.player = player
         self.rect = consts['rect']
+        self.items = {}
+
+    def add(self, item):
+        available_letters = [s for s in string.ascii_lowercase if s not in self.items]
+        letter = available_letters[0]
+        self.items[letter] = item
 
     def input(self, keys, world, turn):
         self._input.update(keys, world, self)
 
     def render(self, graphics, fov, **kwargs):
         if self.fsm.current == 'inventory':
-            self._render.update(graphics, self.rect, self.player.inventory, **kwargs)
+            self._render.update(graphics, self.rect, self.items, **kwargs)
+
+    def use_item(self, key):
+        item = self.items.get(key)
+        if item:
+            item.use(self.player)
+

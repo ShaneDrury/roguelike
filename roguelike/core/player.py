@@ -50,7 +50,6 @@ class Player(Entity):
         self.hp = 20
         self.max_hp = 20
         self.attack = consts['attack']
-        self.inventory = []
 
     def input(self, keys, world, turn):
         self._input.update(keys, self, world, turn)
