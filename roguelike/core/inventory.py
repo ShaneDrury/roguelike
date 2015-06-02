@@ -1,20 +1,15 @@
-from functools import partial
+import string
+
 from core.entity import Entity, Component
 
 
 class InventoryInput(Component):
-    def __init__(self):
-        self.keys_dict = {
-            'INVENTORY': self.toggle_inventory,
-            'UP': partial(self.handle_keys, key='UP'),
-            'DOWN': partial(self.handle_keys, key='DOWN')
-        }
-
     def update(self, keys, world, entity):
         key = keys.check_for_keypress(keys.KEY_PRESSED)
-        func = self.keys_dict.get(key)
-        if func:
-            func(world)
+        if key == 'INVENTORY':
+            self.toggle_inventory(world)
+        else:
+            self.handle_keys(world, key, entity)
 
     def toggle_inventory(self, world):
         if world.fsm.current == 'game':
@@ -22,15 +17,18 @@ class InventoryInput(Component):
         elif world.fsm.current == 'inventory':
             world.fsm.close_inventory()
 
-    def handle_keys(self, world, key):
+    def handle_keys(self, world, key, entity):
         if world.fsm.current == 'inventory':
             print(key)
 
 
 class InventoryItemRender(Component):
     def render(self, graphics, x, y, item):
-        msg = "{} {}".format(item.char, item.name)
-        colour = item.colour
+        alpha_index = string.ascii_lowercase[y]
+        msg = "{})   {} {}".format(alpha_index, item.char, item.name)
+        # TODO: Make the string colourful
+        # colour = item.colour
+        colour = 'white'
         graphics.set_default_foreground(colour)
         graphics.print_ex(x, y, graphics.background.BKGND_NONE, graphics.LEFT, msg)
 

@@ -88,6 +88,7 @@ class Game(object):
         })
 
         self.consts = self.get_consts()
+        self.key_consts = self.get_keys()
         self._input = {'game': GameInput(),
                        'inventory': InventoryInput()}
         self.exited = False
@@ -101,7 +102,7 @@ class Game(object):
         self.message.add('Welcome to Roguelike', 'white')
 
         self.level_handler = Level(self.message)
-        self.keys = Keys(self.consts['keys'])
+        self.keys = {k: Keys(v) for k, v in self.key_consts.iteritems()}
         self.panel = Panel(self.consts['panel'], self)
         self.panel_graphics = Graphics(self.colour,
                                        w=self.settings.SCREEN['w'],
@@ -137,7 +138,8 @@ class Game(object):
             self.render()  # TODO: put this after keys
             self.update()
             self.input()
-            self.keys.flush()
+            for keys in self.keys.values():
+                keys.flush()
 
     def init_render_params(self):
         panel_height = self.consts['panel']['rect']['h']
@@ -162,13 +164,33 @@ class Game(object):
         return render_params
 
     def get_consts(self):
-        consts_list = ['player', 'monsters', 'map', 'keys', 'level', 'panel', 'items',
+        consts_list = ['player', 'monsters', 'map', 'level', 'panel', 'items',
                        'actions', 'inventory']
         consts = {}
         for c in consts_list:
             with open(os.path.join(self.settings.VARS_FOLDER, c + '.yml'), 'r') as f:
                 consts[c] = yaml.load(f)
         return consts
+
+    def get_keys(self):
+        keys_list = ['player', 'inventory', 'game']
+        all_consts = {}
+        for c in keys_list:
+            with open(os.path.join(self.settings.VARS_FOLDER, 'keys',
+                                   c + '.yml'), 'r') as f:
+                all_consts[c] = yaml.load(f)
+        merged_consts = {
+            'game': self.merge_dicts(all_consts['game'],
+                                     all_consts['player']),
+            'inventory': all_consts['inventory'],
+        }
+        return merged_consts
+
+    @staticmethod
+    def merge_dicts(d1, d2):
+        updated = d1.copy()
+        updated.update(d2)
+        return updated
 
     def update(self):
         if self.key_pressed:
@@ -179,9 +201,15 @@ class Game(object):
             (k, v) for k, v in self.entities.iteritems() if getattr(v.obj, 'alive', True)
         ])
 
+    @property
+    def state(self):
+        return self.fsm.current
+
     def input(self):
         # TODO: Add update_render state on different tick
-        self._input[self.fsm.current].update(self.keys, self, self.turn, self.entities)
+        self._input[self.state].update(
+            self.keys[self.state], self, self.turn, self.entities
+        )
 
     def render(self):
         for k, ent in self.entities.items():

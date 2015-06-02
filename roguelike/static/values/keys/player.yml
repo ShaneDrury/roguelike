@@ -29,7 +29,4 @@ DOWN_RIGHT:
   - KEY_KP3
 WAIT:
   - .
-QUIT:
-  - KEY_ESCAPE
-INVENTORY:
-  - I
+

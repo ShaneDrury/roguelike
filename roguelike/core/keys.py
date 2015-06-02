@@ -1,3 +1,4 @@
+import string
 from core.mixin import PassthroughMixin
 
 
@@ -23,7 +24,11 @@ class Keys(PassthroughMixin):
         processed_key = None
         if key.vk == self.KEY_CHAR:
             for k, v in self.keys_dict.iteritems():
-                if chr(key.c) in v:
+                char = chr(key.c)
+                if 'LOWERCASE' in v and char in string.ascii_lowercase:
+                    processed_key = char
+                    break
+                if char in v:
                     processed_key = k
                     break
         else:
