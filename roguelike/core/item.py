@@ -36,5 +36,5 @@ class Item(Entity):
     def render(self, graphics, fov, **kwargs):
         self._render[self.fsm.current].update(graphics, fov, self, **kwargs)
 
-    def use(self, player):
-        log.debug("Using {}".format(self))
+    def use(self, player, turn):
+        raise NotImplementedError("Override this")

@@ -2,7 +2,7 @@
 COST_MULTIPLIER: 12  # Something highly composite e.g. 60
 MOVE:
   cost: 1
-INVENTORY:
-  cost: 0
+ITEM:
+  cost: 2
 ATTACK:
   cost: 1

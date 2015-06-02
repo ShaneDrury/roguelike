@@ -58,7 +58,7 @@ class InventoryRender(Component):
 
 
 class Inventory(Entity):
-    def __init__(self, fsm, player, consts):
+    def __init__(self, fsm, player, turn, consts):
         super(Inventory, self).__init__()
         self._render = InventoryRender()
         self._input = InventoryInput()
@@ -66,6 +66,7 @@ class Inventory(Entity):
         self.player = player
         self.rect = consts['rect']
         self.items = {}
+        self.turn = turn
 
     def add(self, item):
         available_letters = [s for s in string.ascii_lowercase if s not in self.items]
@@ -82,5 +83,5 @@ class Inventory(Entity):
     def use_item(self, key):
         item = self.items.get(key)
         if item:
-            item.use(self.player)
-
+            item.use(self.player, self.turn)
+            self.fsm.close_inventory()

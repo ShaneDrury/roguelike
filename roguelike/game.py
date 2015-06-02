@@ -11,12 +11,12 @@ from core.font import Font
 from core.fov import FOV
 from core.graphics import Graphics
 from core.inventory import Inventory
-from core.item import Item
 from core.keys import Keys
 from core.level import Level
 from core.message import Message
 from core.panel import Panel
 from core.turn import Turn
+from items.health_potion import HealthPotion
 
 log = logging.getLogger('rogue')
 log.setLevel(logging.DEBUG)
@@ -112,19 +112,20 @@ class Game(object):
         self.render_params = self.init_render_params()
         self.fov = FOV(self.entities['map'].obj.tiles)
         player = self.entities['player'].obj
+        self.turn = Turn(self.consts['actions'])
         self.inventory_graphics = Graphics(self.colour,
                                            w=self.consts['inventory']['rect']['w'],
                                            h=self.consts['inventory']['rect']['h'])
-        self.inventory = Inventory(self.fsm, player, self.consts['inventory'])
+        self.inventory = Inventory(self.fsm, player, self.turn, self.consts['inventory'])
         self.entities['inventory'] = EntityCollection(self.inventory,
                                                       self.inventory_graphics)
-        item_entities = [Item('potion', self.consts['items']['potion'])]
+        item_entities = [HealthPotion('potion', self.consts['items']['potion'])]
         for ent in item_entities:
             ent.fsm.pickup()
             self.entities[ent.key] = EntityCollection(ent, self.graphics)
             self.inventory.add(ent)
         self.fov.recompute(player.pos.x, player.pos.y)
-        self.turn = Turn(self.consts['actions'])
+
 
     def main(self):
         self.font.set_custom_font(
