@@ -20,6 +20,10 @@ class Keys(PassthroughMixin):
             self.checking = False
         return self._translate_raw_key(self._cached_key)
 
+    @property
+    def key(self):
+        return self._translate_raw_key(self._cached_key)
+
     def _translate_raw_key(self, key):
         processed_key = None
         if key.vk == self.KEY_CHAR:

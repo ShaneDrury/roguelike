@@ -33,30 +33,28 @@ def noop(*args, **kwargs):
 
 class GameInput(Component):
     def update(self, keys, game, turn, entities):
-        self.system_keys(keys, game)
+        self.system_keys(keys.key, game)
         for ent in entities.values():
             obj = ent.obj
             input_ = getattr(obj, 'input', noop)
             input_(keys, game, turn)
 
     @staticmethod
-    def system_keys(keys, game):
-        key = keys.check_for_keypress(keys.KEY_RELEASED)
+    def system_keys(key, game):
         if key == 'QUIT':
             game.exited = key == 'QUIT'
 
 
 class InventoryInput(Component):
     def update(self, keys, game, turn, entities):
-        self.system_keys(keys, game)
+        self.system_keys(keys.key, game)
         ent = entities['inventory']
         obj = ent.obj
         input_ = getattr(obj, 'input', noop)
         input_(keys, game, turn)
 
     @staticmethod
-    def system_keys(keys, game):
-        key = keys.check_for_keypress(keys.KEY_RELEASED)
+    def system_keys(key, game):
         if key == 'QUIT':
             game.fsm.close_inventory()
 
