@@ -46,6 +46,7 @@ class NPCUpdate(Component):
     @staticmethod
     def update(fsm, state, entity):
         if entity.hp <= 0:
+            log.debug("KILLED")
             entity.alive = False
 
 

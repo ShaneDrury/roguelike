@@ -34,42 +34,29 @@ def noop(*args, **kwargs):
 class GameInput(Component):
     def update(self, keys, game, turn, entities):
         self.system_keys(keys, game)
-        turn.blocking = True
-        while turn.blocking:
-            turn.take_player_action()
-        if game.key_pressed:
-            for ent in entities.values():
-                obj = ent.obj
-                input_ = getattr(obj, 'input', noop)
-                input_(keys, game, turn)
-
-    @staticmethod
-    def system_keys(keys, game):
-        game.key_pressed = False
-        key = keys.check_for_keypress(keys.KEY_RELEASED)
-        if key:
-            game.key_pressed = True
-        game.exited = key == 'QUIT'
-
-
-class InventoryInput(Component):
-    def update(self, keys, game, turn, entities):
-        self.system_keys(keys, game)
-        turn.blocking = True
-        while turn.blocking:
-            turn.take_player_action()
-        if game.key_pressed:
-            ent = entities['inventory']
+        for ent in entities.values():
             obj = ent.obj
             input_ = getattr(obj, 'input', noop)
             input_(keys, game, turn)
 
     @staticmethod
     def system_keys(keys, game):
-        game.key_pressed = False
         key = keys.check_for_keypress(keys.KEY_RELEASED)
-        if key:
-            game.key_pressed = True
+        if key == 'QUIT':
+            game.exited = key == 'QUIT'
+
+
+class InventoryInput(Component):
+    def update(self, keys, game, turn, entities):
+        self.system_keys(keys, game)
+        ent = entities['inventory']
+        obj = ent.obj
+        input_ = getattr(obj, 'input', noop)
+        input_(keys, game, turn)
+
+    @staticmethod
+    def system_keys(keys, game):
+        key = keys.check_for_keypress(keys.KEY_RELEASED)
         if key == 'QUIT':
             game.fsm.close_inventory()
 
@@ -126,7 +113,6 @@ class Game(object):
             self.inventory.add(ent)
         self.fov.recompute(player.pos.x, player.pos.y)
 
-
     def main(self):
         self.font.set_custom_font(
             os.path.join(self.settings.FONT_DIR, 'arial12x12.png'),
@@ -137,10 +123,23 @@ class Game(object):
 
         while not self.exited:
             self.render()  # TODO: put this after keys
-            self.update()
-            self.input()
+            self.turn.blocking = True
+            while self.turn.blocking:
+                self.turn.take_player_action()
+                self.update()
+            self.get_keypress()
+            if self.key_pressed:
+                self.input()
             for keys in self.keys.values():
                 keys.flush()
+
+    def get_keypress(self):
+        self.key_pressed = False
+        key = self.keys[self.state].check_for_keypress(
+            self.keys[self.state].KEY_RELEASED
+        )
+        if key:
+            self.key_pressed = True
 
     def init_render_params(self):
         panel_height = self.consts['panel']['rect']['h']
@@ -199,7 +198,8 @@ class Game(object):
                 update = getattr(entity.obj, 'update', noop)
                 update()
         self.entities = OrderedDict([
-            (k, v) for k, v in self.entities.iteritems() if getattr(v.obj, 'alive', True)
+            (k, v) for k, v in self.entities.iteritems()
+            if getattr(v.obj, 'alive', True)
         ])
 
     @property
