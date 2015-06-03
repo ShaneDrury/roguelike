@@ -6,3 +6,5 @@ ITEM:
   cost: 2
 ATTACK:
   cost: 1
+PICKUP:
+  cost: 1

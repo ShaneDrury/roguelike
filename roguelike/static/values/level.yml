@@ -8,3 +8,9 @@
       weight: 5
     goblin:
       weight: 1
+  allowed_items:
+    health_potion:
+      weight: 1
+  num_items:
+    avg: 20
+    std: 1

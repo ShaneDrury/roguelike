@@ -1,6 +1,6 @@
 import logging
 import random
-from fysom import Fysom
+
 from core.entity import Entity, Component
 from core.render import SimpleRender
 
@@ -14,27 +14,38 @@ class ItemRender(Component):
 
 
 class Item(Entity):
-    def __init__(self, name, consts):
+    def __init__(self, name, consts, inventory, turn, message):
         super(Item, self).__init__()
         self.name = name
+        self.turn = turn
         self.key = "{}_{}".format(self.name, random.randint(0, 1e8))
+        self.inventory = inventory
         self.consts = consts
         self.char = consts['char']
         self.colour = consts['colour']
-        self._render = {
-            'on_ground': SimpleRender(),
-            'inventory': ItemRender()
-        }
-        self.fsm = Fysom({
-            'initial': 'on_ground',
-            'events': [
-                {'name': 'pickup', 'src': 'on_ground', 'dst': 'inventory'},
-                {'name': 'drop', 'src': 'inventory', 'dst': 'on_ground'}
-            ]
-        })
+        self.message = message
+        self._render = SimpleRender()
+        self.picked_up = False
+        self.alive = True
 
     def render(self, graphics, fov, **kwargs):
-        self._render[self.fsm.current].update(graphics, fov, self, **kwargs)
+        self._render.update(graphics, fov, self, **kwargs)
+
+    def update(self):
+        if self.picked_up:
+            self.alive = False
 
     def use(self, player, turn):
-        raise NotImplementedError("Override this")
+        self.inventory.remove(self)
+
+    def collide(self, entity):
+        print("WOO")
+        if entity.is_player:
+            self.turn.add_action('PICKUP', self._pickup, player=True)
+        else:
+            pass
+
+    def _pickup(self):
+        if self.inventory.add(self):
+            self.picked_up = True
+            self.message.add("Picked up {}".format(self), 'white')

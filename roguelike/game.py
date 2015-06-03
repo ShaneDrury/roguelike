@@ -10,13 +10,12 @@ from core.entity import Component, EntityCollection
 from core.font import Font
 from core.fov import FOV
 from core.graphics import Graphics
-from core.inventory import Inventory
 from core.keys import Keys
 from core.level import Level
 from core.message import Message
 from core.panel import Panel
 from core.turn import Turn
-from items.health_potion import HealthPotion
+
 
 log = logging.getLogger('rogue')
 log.setLevel(logging.DEBUG)
@@ -81,28 +80,23 @@ class Game(object):
         message_height = self.consts['panel']['rect']['h'] - 1
         self.message = Message(message_width, message_height)
         self.message.add('Welcome to Roguelike', 'white')
-
-        self.level_handler = Level(self.message)
+        self.turn = Turn(self.consts['actions'])
+        self.level_handler = Level(self.turn, self.message)
         self.keys = {k: Keys(v) for k, v in self.key_consts.iteritems()}
         self.panel = Panel(self.consts['panel'], self)
         self.panel_graphics = Graphics(self.colour,
                                        w=self.settings.SCREEN['w'],
                                        h=self.consts['panel']['rect']['h'])
         self.entities = self.level_handler.init_entities(self, self.consts)
+        self.inventory = self.entities['inventory']
+        player = self.entities['player'].obj
+
         self.entities['panel'] = EntityCollection(self.panel, self.panel_graphics)
         self.render_params = self.init_render_params()
         self.fov = FOV(self.entities['map'].obj.tiles)
-        player = self.entities['player'].obj
-        self.turn = Turn(self.consts['actions'])
-        self.inventory_graphics = Graphics(self.colour,
-                                           w=self.consts['inventory']['rect']['w'],
-                                           h=self.consts['inventory']['rect']['h'])
-        self.inventory = Inventory(self.fsm, player, self.turn, self.consts['inventory'])
-        self.entities['inventory'] = EntityCollection(self.inventory,
-                                                      self.inventory_graphics)
-        item_entities = [HealthPotion('potion', self.consts['items']['potion'])]
+
+        item_entities = []
         for ent in item_entities:
-            ent.fsm.pickup()
             self.entities[ent.key] = EntityCollection(ent, self.graphics)
             self.inventory.add(ent)
         self.fov.recompute(player.pos.x, player.pos.y)
@@ -222,6 +216,7 @@ class Game(object):
                 if target.tiles[x][y].blocked:
                     entity.pos = prev
                 continue
+            # TODO: check if item and don't push back
             if hasattr(target, 'pos'):
                 if entity.pos == target.pos and target.blocking:  # Hit entity
                     log.debug("{} overlapping {} {} prev={}".

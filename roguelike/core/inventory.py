@@ -70,8 +70,20 @@ class Inventory(Entity):
 
     def add(self, item):
         available_letters = [s for s in string.ascii_lowercase if s not in self.items]
-        letter = available_letters[0]
+        try:
+            letter = available_letters[0]
+        except IndexError:
+            return False
         self.items[letter] = item
+        return True
+
+    def remove(self, item):
+        for k, v in self.items.iteritems():
+            if v == item:
+                del self.items[k]
+                break
+        else:
+            raise KeyError("No such item {}".format(item))
 
     def input(self, keys, world, turn):
         self._input.update(keys, world, self)
