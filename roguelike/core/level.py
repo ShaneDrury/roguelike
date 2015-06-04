@@ -34,8 +34,8 @@ class MonsterGenerator(Component):
             npc = NPC(p, monsters[p], self.message)
             npc_room = map_.rooms[random.randint(1, len(map_.rooms)-1)]
             while True:
-                npcx = random.randint(npc_room.x1, npc_room.x2)
-                npcy = random.randint(npc_room.y1, npc_room.y2)
+                npcx = random.randint(npc_room.x1 + 1, npc_room.x2 - 1)
+                npcy = random.randint(npc_room.y1 + 1, npc_room.y2 - 1)
                 npc.pos = Point(npcx, npcy)
 
                 for k, entity in entities.iteritems():
@@ -73,8 +73,8 @@ class ItemGenerator(Component):
             item = item_cls(p, items[p], inventory, self.turn, self.message)
             item_room = map_.rooms[random.randint(1, len(map_.rooms)-1)]
             while True:
-                itemx = random.randint(item_room.x1, item_room.x2)
-                itemy = random.randint(item_room.y1, item_room.y2)
+                itemx = random.randint(item_room.x1 + 1, item_room.x2 - 1)
+                itemy = random.randint(item_room.y1 + 1, item_room.y2 - 1)
                 item.pos = Point(itemx, itemy)
                 for k, entity in entities.iteritems():
                     if entity.obj == item:
