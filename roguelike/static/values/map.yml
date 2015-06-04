@@ -18,3 +18,10 @@ room_num:
 room_size:
   avg: 10
   std: 2
+
+stairs:
+  colour: white
+  up:
+    char: <
+  down:
+    char: >

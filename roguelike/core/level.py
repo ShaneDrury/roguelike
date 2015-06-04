@@ -4,12 +4,13 @@ from collections import OrderedDict
 import logging
 import random
 
-from core.entity import Component, EntityCollection, Point
+from core.entity import Component, EntityCollection, Point, Entity
 from core.graphics import Graphics
 from core.inventory import Inventory
 from core.mapping import Map
 from core.npc import NPC
 from core.player import Player
+from core.render import SimpleRender
 from items import get_item
 
 log = logging.getLogger('rogue.mapping')
@@ -90,12 +91,29 @@ class ItemGenerator(Component):
         return entities
 
 
+class Stairs(Entity):
+    def __init__(self, consts):
+        super(Stairs, self).__init__()
+        self.blocking = False
+        self.consts = consts
+        self._render = SimpleRender()
+
+
+class StairsGenerator(Component):
+    def __init__(self, message):
+        self.message = message
+
+    def update(self, map_, graphics, consts, level, inventory):
+        return []
+
+
 class Level(Component):
     def __init__(self, turn, message):
         self.message = message
         self.turn = turn
         self.monster_generator = MonsterGenerator(self.message)
         self.item_generator = ItemGenerator(self.turn, self.message)
+        self.stairs_generator = StairsGenerator(self.message)
         self.level = 1
 
     def init_entities(self, world, consts):
@@ -120,6 +138,10 @@ class Level(Component):
         item_entities = self.item_generator.update(map_, world.graphics,
                                                    consts, self.level,
                                                    inventory)
+        stairs = self.stairs_generator.update(map_, world.graphics,
+                                              consts, self.level,
+                                              inventory)
+        entities.update(stairs)
         entities.update(item_entities)
         entities.update(monster_entities)
         entities['inventory'] = EntityCollection(inventory, inventory_graphics)
