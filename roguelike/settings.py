@@ -1,6 +1,6 @@
 import os
 
-SCREEN = {'w': 80, 'h': 50}
+SCREEN = {'w': 80, 'h': 52}
 LIMIT_FPS = 20
 STATIC_DIR = 'static'
 FONT_DIR = os.path.join(STATIC_DIR, 'font')
