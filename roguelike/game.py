@@ -26,10 +26,6 @@ ch.setLevel(logging.DEBUG)
 log.addHandler(ch)
 
 
-def noop(*args, **kwargs):
-    pass
-
-
 class GameInput(Component):
     @staticmethod
     def update(keys, game, turn, entities):
@@ -38,8 +34,8 @@ class GameInput(Component):
             return
         for ent in entities.values():
             obj = ent.obj
-            input_ = getattr(obj, 'input', noop)
-            input_(keys, game, turn)
+            if hasattr(obj, 'input'):
+                obj.input(keys, game, turn)
 
 
 class InventoryInput(Component):
@@ -50,8 +46,8 @@ class InventoryInput(Component):
             return
         ent = entities['inventory']
         obj = ent.obj
-        input_ = getattr(obj, 'input', noop)
-        input_(keys, game, turn)
+        if hasattr(obj, 'input'):
+            obj.input(keys, game, turn)
 
 
 class Game(object):
@@ -183,8 +179,8 @@ class Game(object):
     def update(self):
         if self.key_pressed:
             for entity in self.entities.values():
-                update = getattr(entity.obj, 'update', noop)
-                update()
+                if hasattr(entity.obj, 'update'):
+                    entity.obj.update()
         self.entities = OrderedDict([
             (k, v) for k, v in self.entities.iteritems()
             if getattr(v.obj, 'alive', True)
