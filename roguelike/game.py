@@ -218,8 +218,9 @@ class Game(object):
                 continue
             # TODO: check if item and don't push back
             if hasattr(target, 'pos'):
-                if entity.pos == target.pos and target.blocking:  # Hit entity
-                    log.debug("{} overlapping {} {} prev={}".
-                              format(entity, target, entity.pos, prev))
-                    entity.pos = prev
+                if entity.pos == target.pos:  # Hit entity
+                    if target.blocking:
+                        log.debug("{} overlapping {} {} prev={}".
+                                  format(entity, target, entity.pos, prev))
+                        entity.pos = prev
                     target.collide(entity)

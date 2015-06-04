@@ -120,7 +120,7 @@ class Level(Component):
         item_entities = self.item_generator.update(map_, world.graphics,
                                                    consts, self.level,
                                                    inventory)
-        entities.update(monster_entities)
         entities.update(item_entities)
+        entities.update(monster_entities)
         entities['inventory'] = EntityCollection(inventory, inventory_graphics)
         return entities

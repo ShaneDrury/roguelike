@@ -27,6 +27,7 @@ class Item(Entity):
         self._render = SimpleRender()
         self.picked_up = False
         self.alive = True
+        self.blocking = False
 
     def render(self, graphics, fov, **kwargs):
         self._render.update(graphics, fov, self, **kwargs)
@@ -39,7 +40,6 @@ class Item(Entity):
         self.inventory.remove(self)
 
     def collide(self, entity):
-        print("WOO")
         if entity.is_player:
             self.turn.add_action('PICKUP', self._pickup, player=True)
         else:
