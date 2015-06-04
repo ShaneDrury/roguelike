@@ -1,3 +1,5 @@
+from __future__ import division
+
 from functools import partial
 from core.item import Item, log
 
@@ -9,4 +11,4 @@ class HealthPotion(Item):
         super(HealthPotion, self).use(player, turn)
 
     def _use(self, player):
-        player.hp += 10
+        player.hp += player.max_hp // 2
