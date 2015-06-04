@@ -24,11 +24,6 @@ class Tile(Entity):
 class MapRender(Component):
     @staticmethod
     def update(graphics, fov, entity):
-        for room in entity.rooms:
-            x, y = room.center
-            graphics.put_char(x, y, 'X')
-            graphics.blit(x, y, 0, 0, 0, 0, 0)
-
         # TODO: Maybe pass some of this on to the Tile
         # Can do FSM stuff to simplify it
         for x, row in enumerate(entity.tiles):
