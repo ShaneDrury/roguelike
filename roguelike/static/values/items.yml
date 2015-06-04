@@ -2,4 +2,5 @@
 health_potion:
   char: '!'
   colour: red
+  full_name: Health Potion
   description: Health potion

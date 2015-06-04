@@ -216,7 +216,6 @@ class Game(object):
                 if target.tiles[x][y].blocked:
                     entity.pos = prev
                 continue
-            # TODO: check if item and don't push back
             if hasattr(target, 'pos'):
                 if entity.pos == target.pos:  # Hit entity
                     if target.blocking:

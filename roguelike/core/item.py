@@ -48,4 +48,5 @@ class Item(Entity):
     def _pickup(self):
         if self.inventory.add(self):
             self.picked_up = True
-            self.message.add("Picked up {}".format(self), 'white')
+            self.message.add("Picked up {}".format(self.consts['full_name']),
+                             'white')
