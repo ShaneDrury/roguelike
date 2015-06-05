@@ -17,6 +17,9 @@ log = logging.getLogger('rogue.mapping')
 
 
 def place_in_random_room(entity, entities, rooms):
+    """
+    Sets entity.pos to be in a random place in a random room
+    """
     room = rooms[random.randint(1, len(rooms)-1)]
     while True:
         npcx = random.randint(room.x1 + 1, room.x2 - 1)
@@ -83,19 +86,24 @@ class ItemGenerator(Component):
 
 
 class Stairs(Entity):
-    def __init__(self, consts):
+    def __init__(self, direction, consts):
         super(Stairs, self).__init__()
         self.blocking = False
         self.consts = consts
         self._render = SimpleRender()
+        self.pos = None
+        self.direction = direction
+        self.char = consts[self.direction]['char']
 
 
 class StairsGenerator(Component):
     def __init__(self, message):
         self.message = message
 
-    def update(self, map_, graphics, consts, level, inventory):
-        return []
+    def update(self, map_, graphics, consts):
+        stairs = Stairs('down', consts['map']['stairs'])
+        place_in_random_room(stairs, {}, map_.rooms)
+        return {'stairs': EntityCollection(stairs, graphics)}
 
 
 class Level(Component):
@@ -129,9 +137,7 @@ class Level(Component):
         item_entities = self.item_generator.update(map_, world.graphics,
                                                    consts, self.level,
                                                    inventory)
-        stairs = self.stairs_generator.update(map_, world.graphics,
-                                              consts, self.level,
-                                              inventory)
+        stairs = self.stairs_generator.update(map_, world.graphics, consts)
         entities.update(stairs)
         entities.update(item_entities)
         entities.update(monster_entities)

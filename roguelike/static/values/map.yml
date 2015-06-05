@@ -22,6 +22,6 @@ room_size:
 stairs:
   colour: white
   up:
-    char: <
+    char: '<'
   down:
-    char: >
+    char: '>'

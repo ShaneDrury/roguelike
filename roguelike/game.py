@@ -212,7 +212,7 @@ class Game(object):
                 if target.tiles[x][y].blocked:
                     entity.pos = prev
                 continue
-            if hasattr(target, 'pos'):
+            if hasattr(target, 'collide'):
                 if entity.pos == target.pos:  # Hit entity
                     if target.blocking:
                         log.debug("{} overlapping {} {} prev={}".
