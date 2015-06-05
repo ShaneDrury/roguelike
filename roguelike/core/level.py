@@ -16,6 +16,22 @@ from items import get_item
 log = logging.getLogger('rogue.mapping')
 
 
+def place_in_random_room(entity, entities, rooms):
+    room = rooms[random.randint(1, len(rooms)-1)]
+    while True:
+        npcx = random.randint(room.x1 + 1, room.x2 - 1)
+        npcy = random.randint(room.y1 + 1, room.y2 - 1)
+        entity.pos = Point(npcx, npcy)
+        for k, other in entities.iteritems():
+            if other.obj == entity:
+                continue
+            if entity.pos == other.obj.pos:
+                log.debug("Collision {}".format(k))
+                break
+        else:
+            break
+
+
 class MonsterGenerator(Component):
     def __init__(self, message):
         self.message = message
@@ -33,23 +49,10 @@ class MonsterGenerator(Component):
         for n in range(num_monsters):
             p = random.choice(population)
             npc = NPC(p, monsters[p], self.message)
-            npc_room = map_.rooms[random.randint(1, len(map_.rooms)-1)]
-            while True:
-                npcx = random.randint(npc_room.x1 + 1, npc_room.x2 - 1)
-                npcy = random.randint(npc_room.y1 + 1, npc_room.y2 - 1)
-                npc.pos = Point(npcx, npcy)
-
-                for k, entity in entities.iteritems():
-                    if entity.obj == npc:
-                        continue
-                    if npc.pos == entity.obj.pos:
-                        log.debug("Collision {}".format(k))
-                        break
-                else:
-                    entity_key = "{}_{}".format(p, random.randint(0, 1e8))
-                    log.debug("Added {}".format(entity_key))
-                    entities[entity_key] = EntityCollection(npc, graphics)
-                    break
+            place_in_random_room(npc, entities, map_.rooms)
+            entity_key = "{}_{}".format(p, random.randint(0, 1e8))
+            log.debug("Added {}".format(entity_key))
+            entities[entity_key] = EntityCollection(npc, graphics)
         return entities
 
 
@@ -72,22 +75,10 @@ class ItemGenerator(Component):
             p = random.choice(population)
             item_cls = get_item(p)
             item = item_cls(p, items[p], inventory, self.turn, self.message)
-            item_room = map_.rooms[random.randint(1, len(map_.rooms)-1)]
-            while True:
-                itemx = random.randint(item_room.x1 + 1, item_room.x2 - 1)
-                itemy = random.randint(item_room.y1 + 1, item_room.y2 - 1)
-                item.pos = Point(itemx, itemy)
-                for k, entity in entities.iteritems():
-                    if entity.obj == item:
-                        continue
-                    if item.pos == entity.obj.pos:
-                        log.debug("Collision {}".format(k))
-                        break
-                else:
-                    entity_key = "{}_{}".format(p, random.randint(0, 1e8))
-                    log.debug("Added {}".format(entity_key))
-                    entities[entity_key] = EntityCollection(item, graphics)
-                    break
+            place_in_random_room(item, entities, map_.rooms)
+            entity_key = "{}_{}".format(p, random.randint(0, 1e8))
+            log.debug("Added {}".format(entity_key))
+            entities[entity_key] = EntityCollection(item, graphics)
         return entities
 
 
