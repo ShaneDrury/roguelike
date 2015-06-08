@@ -22,9 +22,9 @@ def place_in_random_room(entity, entities, rooms):
     """
     room = rooms[random.randint(1, len(rooms)-1)]
     while True:
-        npcx = random.randint(room.x1 + 1, room.x2 - 1)
-        npcy = random.randint(room.y1 + 1, room.y2 - 1)
-        entity.pos = Point(npcx, npcy)
+        x = random.randint(room.x1 + 1, room.x2 - 1)
+        y = random.randint(room.y1 + 1, room.y2 - 1)
+        entity.pos = Point(x, y)
         for k, other in entities.iteritems():
             if other.obj == entity:
                 continue
@@ -123,11 +123,7 @@ class Level(Component):
         map_ = Map(consts['map'])
         player.pos = map_.rooms[0].center
 
-        entities = OrderedDict([
-            ('map', EntityCollection(map_, map_graphics)),
-            ('player', EntityCollection(player, player_graphics)),
-        ])
-
+        entities = OrderedDict()
         inventory = Inventory(world.fsm, player, world.turn, consts['inventory'])
         inventory_graphics = Graphics(world.colour,
                                       w=consts['inventory']['rect']['w'],
@@ -139,7 +135,9 @@ class Level(Component):
                                                    inventory)
         stairs = self.stairs_generator.update(map_, world.graphics, consts)
         entities.update(stairs)
+        entities['player'] = EntityCollection(player, player_graphics)
         entities.update(item_entities)
         entities.update(monster_entities)
         entities['inventory'] = EntityCollection(inventory, inventory_graphics)
+        entities['map'] = EntityCollection(map_, map_graphics)
         return entities

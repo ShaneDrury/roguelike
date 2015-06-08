@@ -63,7 +63,7 @@ class Game(object):
             ]
         })
 
-        self.consts = self.get_consts()
+        self.consts = self.load_consts()
         self.key_consts = self.get_keys()
         self._input = {'game': GameInput(),
                        'inventory': InventoryInput()}
@@ -147,7 +147,7 @@ class Game(object):
             render_params[k] = render_params['player']
         return render_params
 
-    def get_consts(self):
+    def load_consts(self):
         consts_list = ['player', 'monsters', 'map', 'level', 'panel', 'items',
                        'actions', 'inventory']
         consts = {}
