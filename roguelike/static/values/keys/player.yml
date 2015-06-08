@@ -29,4 +29,7 @@ DOWN_RIGHT:
   - KEY_KP3
 WAIT:
   - .
-
+DESCEND:
+  - '>'
+ASCEND:
+  - '<'
