@@ -21,20 +21,20 @@ class PlayerInput(Component):
             'WAIT': Point(0, 0)
         }
 
-    def update(self, keys, entity, world, turn):
+    def update(self, keys, entity, world, fov, turn):
         key = keys.check_for_keypress(keys.KEY_PRESSED)
         prev = entity.pos
         x, y = entity.pos
         diff = self.keys_dict.get(key, None)
         if diff:
-            callback = partial(self.move, world, entity, diff, x, y, prev)
+            callback = partial(self.move, world, fov, entity, diff, x, y, prev)
             turn.add_action('MOVE', callback, player=True)
 
     @staticmethod
-    def move(world, entity, diff, x, y, prev):
+    def move(world, fov, entity, diff, x, y, prev):
         entity.pos = Point(x + diff.x, y + diff.y)
         world.resolve_collision(entity, prev)
-        world.fov.recompute(entity.pos.x, entity.pos.y)
+        fov.recompute(entity.pos.x, entity.pos.y)
 
 
 class Player(Entity):
@@ -52,7 +52,7 @@ class Player(Entity):
         self.attack = consts['attack']
 
     def input(self, keys, world, turn):
-        self._input.update(keys, self, world, turn)
+        self._input.update(keys, self, world, world.fov, turn)
 
     def collide(self, entity):
         self.hp -= entity.attack

@@ -83,7 +83,11 @@ class Game(object):
         self.panel_graphics = Graphics(self.colour,
                                        w=self.settings.SCREEN['w'],
                                        h=self.consts['panel']['rect']['h'])
-        self.entities = self.level_handler.init_entities(self, self.consts)
+        self.entities = self.level_handler.init_entities(self.fsm,
+                                                         self.message,
+                                                         self.graphics,
+                                                         self.turn,
+                                                         self.consts)
         self.inventory = self.entities['inventory']
         player = self.entities['player'].obj
 

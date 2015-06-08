@@ -13,16 +13,16 @@ class NPCRender(SimpleRender):
 
 
 class HuntingInput(Component):
-    def update(self, entity, world, turn):
-        if world.fov.is_in_fov(entity.pos.x, entity.pos.y):
-            callback = partial(self.move, world, entity)
+    def update(self, entity, other_entities, world, fov, turn):
+        if fov.is_in_fov(entity.pos.x, entity.pos.y):
+            callback = partial(self.move, other_entities, world, entity)
             turn.add_action('MOVE', callback, player=False)
 
     @staticmethod
-    def move(world, entity):
+    def move(other_entities, world, entity):
         # TODO: Make this an actual path finder
         # Move towards player
-        px, py = world.entities['player'].obj.pos
+        px, py = other_entities['player'].obj.pos
         prev = entity.pos
         nx, ny = prev
         dx = px - nx
@@ -89,4 +89,4 @@ class NPC(Entity):
             log.debug("{} hit {} - {}".format(entity, self, self.hp))
 
     def input(self, keys, world, turn):
-        self._input[self.fsm.current].update(self, world, turn)
+        self._input[self.fsm.current].update(self, world.entities, world, world.fov, turn)

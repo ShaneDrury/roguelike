@@ -115,25 +115,25 @@ class Level(Component):
         self.stairs_generator = StairsGenerator(self.message)
         self.level = 1
 
-    def init_entities(self, world, consts):
-        player_graphics = world.graphics
-        map_graphics = world.graphics
+    def init_entities(self, fsm, message, graphics, turn, consts):
+        player_graphics = graphics
+        map_graphics = graphics
 
-        player = Player(consts['player'], world.message)
+        player = Player(consts['player'], message)
         map_ = Map(consts['map'])
         player.pos = map_.rooms[0].center
 
         entities = OrderedDict()
-        inventory = Inventory(world.fsm, player, world.turn, consts['inventory'])
-        inventory_graphics = Graphics(world.colour,
+        inventory = Inventory(fsm, player, turn, consts['inventory'])
+        inventory_graphics = Graphics(graphics.colour,
                                       w=consts['inventory']['rect']['w'],
                                       h=consts['inventory']['rect']['h'])
-        monster_entities = self.monster_generator.update(map_, world.graphics,
+        monster_entities = self.monster_generator.update(map_, graphics,
                                                          consts, self.level)
-        item_entities = self.item_generator.update(map_, world.graphics,
+        item_entities = self.item_generator.update(map_, graphics,
                                                    consts, self.level,
                                                    inventory)
-        stairs = self.stairs_generator.update(map_, world.graphics, consts)
+        stairs = self.stairs_generator.update(map_, graphics, consts)
         entities.update(stairs)
         entities['player'] = EntityCollection(player, player_graphics)
         entities.update(item_entities)
