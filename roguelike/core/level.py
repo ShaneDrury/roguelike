@@ -5,6 +5,7 @@ import logging
 import random
 
 from core.entity import Component, EntityCollection, Point, Entity
+from core.fov import FOV
 from core.graphics import Graphics
 from core.inventory import Inventory
 from core.mapping import Map
@@ -114,6 +115,7 @@ class Level(Component):
         self.item_generator = ItemGenerator(self.turn, self.message)
         self.stairs_generator = StairsGenerator(self.message)
         self.level = 1
+        self.fov = None
 
     def init_entities(self, fsm, message, graphics, turn, consts):
         player_graphics = graphics
@@ -140,4 +142,5 @@ class Level(Component):
         entities.update(monster_entities)
         entities['inventory'] = EntityCollection(inventory, inventory_graphics)
         entities['map'] = EntityCollection(map_, map_graphics)
+        self.fov = FOV(map_.tiles)
         return entities

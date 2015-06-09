@@ -1,14 +1,13 @@
 from collections import OrderedDict
 import logging
 import os
-from fysom import Fysom
 
+from fysom import Fysom
 import yaml
 
 from core.colour import Colour
 from core.entity import Component, EntityCollection
 from core.font import Font
-from core.fov import FOV
 from core.graphics import Graphics
 from core.keys import Keys
 from core.level import Level
@@ -89,17 +88,22 @@ class Game(object):
                                                          self.turn,
                                                          self.consts)
         self.inventory = self.entities['inventory']
-        player = self.entities['player'].obj
+        self.player = self.entities['player'].obj
 
         self.entities['panel'] = EntityCollection(self.panel, self.panel_graphics)
         self.render_params = self.init_render_params()
-        self.fov = FOV(self.entities['map'].obj.tiles)
-
         item_entities = []
         for ent in item_entities:
             self.entities[ent.key] = EntityCollection(ent, self.graphics)
             self.inventory.add(ent)
-        self.fov.recompute(player.pos.x, player.pos.y)
+        self.pre_main()
+
+    @property
+    def fov(self):
+        return self.level_handler.fov
+
+    def pre_main(self):
+        self.fov.recompute(self.player.pos.x, self.player.pos.y)
 
     def main(self):
         self.font.set_custom_font(
