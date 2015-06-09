@@ -84,14 +84,21 @@ class Game(object):
         self.panel_graphics = Graphics(self.colour,
                                        w=self.settings.SCREEN['w'],
                                        h=self.consts['panel']['rect']['h'])
-        self.entities = self.level_handler.init_entities(self.fsm,
-                                                         self.message,
-                                                         self.graphics,
-                                                         self.turn,
-                                                         self.consts)
-        self.inventory = self.entities['inventory']
+        self.entities = OrderedDict()
+        initial_entities = self.level_handler.init_entities(self.fsm,
+                                                            self.message,
+                                                            self.graphics,
+                                                            self.turn,
+                                                            self.consts)
+        self.inventory = initial_entities.pop('inventory')
+        self.entities.update(initial_entities)
         self.player = self.entities['player'].obj
-
+        level_entities = self.level_handler.gen_level_entities(self.inventory.obj,
+                                                               self.graphics,
+                                                               self.consts)
+        self.entities.update(level_entities)
+        self.entities['inventory'] = self.inventory
+        self.player.pos = self.entities['map'].obj.rooms[0].center
         self.entities['panel'] = EntityCollection(self.panel, self.panel_graphics)
         self.render_params = self.init_render_params()
         item_entities = []
@@ -192,9 +199,9 @@ class Game(object):
                 if hasattr(entity.obj, 'update'):
                     entity.obj.update()
         self.entities = OrderedDict([
-            (k, v) for k, v in self.entities.iteritems()
-            if getattr(v.obj, 'alive', True)
-        ])
+                                        (k, v) for k, v in self.entities.iteritems()
+                                        if getattr(v.obj, 'alive', True)
+                                        ])
 
     @property
     def state(self):

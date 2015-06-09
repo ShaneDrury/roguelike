@@ -119,17 +119,21 @@ class Level(Component):
 
     def init_entities(self, fsm, message, graphics, turn, consts):
         player_graphics = graphics
-        map_graphics = graphics
-
         player = Player(consts['player'], message)
-        map_ = Map(consts['map'])
-        player.pos = map_.rooms[0].center
 
         entities = OrderedDict()
         inventory = Inventory(fsm, player, turn, consts['inventory'])
         inventory_graphics = Graphics(graphics.colour,
                                       w=consts['inventory']['rect']['w'],
                                       h=consts['inventory']['rect']['h'])
+        entities['player'] = EntityCollection(player, player_graphics)
+        entities['inventory'] = EntityCollection(inventory, inventory_graphics)
+        return entities
+
+    def gen_level_entities(self, inventory, graphics, consts):
+        map_ = Map(consts['map'])
+        map_graphics = graphics
+        entities = OrderedDict()
         monster_entities = self.monster_generator.update(map_, graphics,
                                                          consts, self.depth)
         item_entities = self.item_generator.update(map_, graphics,
@@ -137,10 +141,8 @@ class Level(Component):
                                                    inventory)
         stairs = self.stairs_generator.update(map_, graphics, consts)
         entities.update(stairs)
-        entities['player'] = EntityCollection(player, player_graphics)
         entities.update(item_entities)
         entities.update(monster_entities)
-        entities['inventory'] = EntityCollection(inventory, inventory_graphics)
         entities['map'] = EntityCollection(map_, map_graphics)
         self.fov = FOV(map_.tiles)
         return entities
