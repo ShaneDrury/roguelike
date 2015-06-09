@@ -30,16 +30,16 @@ class PanelRender(Component):
         self.bar_render = BarRender()
         self.msg_render = MessageRender()
 
-    def update(self, consts, graphics, world, **kwargs):
-        player_hp = world.entities['player'].obj.hp
-        player_max_hp = world.entities['player'].obj.max_hp
+    def update(self, consts, graphics, entities, message, **kwargs):
+        player_hp = entities['player'].obj.hp
+        player_max_hp = entities['player'].obj.max_hp
         bar_x = consts['bar']['w']
         msg_x = bar_x + 2
         self.pre_render(graphics)
         self.bar_render.bar(1, 1, bar_x, 'HP', player_hp, player_max_hp,
                             graphics.colour.light_red, graphics.colour.darker_red,
                             graphics)
-        self.msg_render.render_all(world.message.messages, graphics, msg_x)
+        self.msg_render.render_all(message.messages, graphics, msg_x)
         self._blit(graphics, **kwargs)
 
     @staticmethod
@@ -60,4 +60,5 @@ class Panel(Entity):
         self._render = PanelRender()
 
     def render(self, graphics, fov, **kwargs):
-        self._render.update(self.consts, graphics, self.world, **kwargs)
+        self._render.update(self.consts, graphics, self.world.entities,
+                            self.world.message, **kwargs)
