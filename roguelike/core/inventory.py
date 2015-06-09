@@ -4,23 +4,23 @@ from core.entity import Entity, Component
 
 
 class InventoryInput(Component):
-    def update(self, keys, world, entity):
+    def update(self, keys, fsm, entity):
         key = keys.check_for_keypress(keys.KEY_PRESSED)
         if key == 'INVENTORY':
-            self.toggle_inventory(world)
+            self.toggle_inventory(fsm)
         else:
-            self.handle_keys(world, key, entity)
+            self.handle_keys(fsm, key, entity)
 
     @staticmethod
-    def toggle_inventory(world):
-        if world.fsm.current == 'game':
-            world.fsm.open_inventory()
-        elif world.fsm.current == 'inventory':
-            world.fsm.close_inventory()
+    def toggle_inventory(fsm):
+        if fsm.current == 'game':
+            fsm.open_inventory()
+        elif fsm.current == 'inventory':
+            fsm.close_inventory()
 
     @staticmethod
-    def handle_keys(world, key, entity):
-        if world.fsm.current == 'inventory':
+    def handle_keys(fsm, key, entity):
+        if fsm.current == 'inventory':
             entity.use_item(key)
 
 
@@ -86,7 +86,7 @@ class Inventory(Entity):
             raise KeyError("No such item {}".format(item))
 
     def input(self, keys, world, turn):
-        self._input.update(keys, world, self)
+        self._input.update(keys, world.fsm, self)
 
     def render(self, graphics, fov, **kwargs):
         if self.fsm.current == 'inventory':
