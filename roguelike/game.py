@@ -70,13 +70,15 @@ class Game(object):
         self.colour = Colour()
         self.graphics = Graphics(self.colour, **self.settings.SCREEN)
         self.key_pressed = False
+        self.current_depth = 1
 
         message_width = self.settings.SCREEN['w'] - self.consts['panel']['bar']['w'] - 2
         message_height = self.consts['panel']['rect']['h'] - 1
         self.message = Message(message_width, message_height)
         self.message.add('Welcome to Roguelike', 'white')
         self.turn = Turn(self.consts['actions'])
-        self.level_handler = Level(self.turn, self.message)
+        self.levels = [Level(n, self.turn, self.message) for n in range(1, 3)]
+        self.level_handler = self.levels[0]
         self.keys = {k: Keys(v) for k, v in self.key_consts.iteritems()}
         self.panel = Panel(self.consts['panel'], self)
         self.panel_graphics = Graphics(self.colour,

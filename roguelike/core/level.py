@@ -108,13 +108,13 @@ class StairsGenerator(Component):
 
 
 class Level(Component):
-    def __init__(self, turn, message):
+    def __init__(self, depth, turn, message):
         self.message = message
         self.turn = turn
         self.monster_generator = MonsterGenerator(self.message)
         self.item_generator = ItemGenerator(self.turn, self.message)
         self.stairs_generator = StairsGenerator(self.message)
-        self.level = 1
+        self.depth = depth
         self.fov = None
 
     def init_entities(self, fsm, message, graphics, turn, consts):
@@ -131,9 +131,9 @@ class Level(Component):
                                       w=consts['inventory']['rect']['w'],
                                       h=consts['inventory']['rect']['h'])
         monster_entities = self.monster_generator.update(map_, graphics,
-                                                         consts, self.level)
+                                                         consts, self.depth)
         item_entities = self.item_generator.update(map_, graphics,
-                                                   consts, self.level,
+                                                   consts, self.depth,
                                                    inventory)
         stairs = self.stairs_generator.update(map_, graphics, consts)
         entities.update(stairs)
