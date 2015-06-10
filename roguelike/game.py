@@ -9,10 +9,12 @@ from core.colour import Colour
 from core.entity import Component, EntityCollection
 from core.font import Font
 from core.graphics import Graphics
+from core.inventory import Inventory
 from core.keys import Keys
 from core.level import Level
 from core.message import Message
 from core.panel import Panel
+from core.player import Player
 from core.turn import Turn
 
 
@@ -85,34 +87,37 @@ class Game(object):
                                        w=self.settings.SCREEN['w'],
                                        h=self.consts['panel']['rect']['h'])
         self.entities = OrderedDict()
-        initial_entities = self.level_handler.init_entities(self.fsm,
-                                                            self.message,
-                                                            self.graphics,
-                                                            self.turn,
-                                                            self.consts)
-        self.inventory = initial_entities.pop('inventory')
-        self.entities.update(initial_entities)
+        self.inventory = None
+        self.player = None
+        self.render_params = None
+        self.init_entities()
+
+    def init_entities(self):
+        player_graphics = self.graphics
+        player = Player(self.consts['player'], self.message)
+        inventory_graphics = Graphics(self.graphics.colour,
+                                      w=self.consts['inventory']['rect']['w'],
+                                      h=self.consts['inventory']['rect']['h'])
+        self.entities['player'] = EntityCollection(player, player_graphics)
+        self.inventory = Inventory(self.fsm, player, self.turn, self.consts['inventory'])
         self.player = self.entities['player'].obj
-        level_entities = self.level_handler.gen_level_entities(self.inventory.obj,
+        level_entities = self.level_handler.gen_level_entities(self.inventory,
                                                                self.graphics,
                                                                self.consts)
         self.entities.update(level_entities)
-        self.entities['inventory'] = self.inventory
         self.player.pos = self.entities['map'].obj.rooms[0].center
         self.entities['panel'] = EntityCollection(self.panel, self.panel_graphics)
+        self.entities['inventory'] = EntityCollection(self.inventory, inventory_graphics)
         self.render_params = self.init_render_params()
         item_entities = []
         for ent in item_entities:
             self.entities[ent.key] = EntityCollection(ent, self.graphics)
             self.inventory.add(ent)
-        self.pre_main()
+        self.fov.recompute(self.player.pos.x, self.player.pos.y)
 
     @property
     def fov(self):
         return self.level_handler.fov
-
-    def pre_main(self):
-        self.fov.recompute(self.player.pos.x, self.player.pos.y)
 
     def main(self):
         self.font.set_custom_font(
@@ -198,10 +203,10 @@ class Game(object):
             for entity in self.entities.values():
                 if hasattr(entity.obj, 'update'):
                     entity.obj.update()
-        self.entities = OrderedDict([
-                                        (k, v) for k, v in self.entities.iteritems()
-                                        if getattr(v.obj, 'alive', True)
-                                        ])
+        self.entities = OrderedDict(
+            [(k, v) for k, v in self.entities.iteritems()
+             if getattr(v.obj, 'alive', True)
+             ])
 
     @property
     def state(self):

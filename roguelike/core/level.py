@@ -117,19 +117,6 @@ class Level(Component):
         self.depth = depth
         self.fov = None
 
-    def init_entities(self, fsm, message, graphics, turn, consts):
-        player_graphics = graphics
-        player = Player(consts['player'], message)
-
-        entities = OrderedDict()
-        inventory = Inventory(fsm, player, turn, consts['inventory'])
-        inventory_graphics = Graphics(graphics.colour,
-                                      w=consts['inventory']['rect']['w'],
-                                      h=consts['inventory']['rect']['h'])
-        entities['player'] = EntityCollection(player, player_graphics)
-        entities['inventory'] = EntityCollection(inventory, inventory_graphics)
-        return entities
-
     def gen_level_entities(self, inventory, graphics, consts):
         map_ = Map(consts['map'])
         map_graphics = graphics
