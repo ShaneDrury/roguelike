@@ -1,6 +1,5 @@
 from __future__ import division
 
-from collections import OrderedDict
 import logging
 import random
 
@@ -117,7 +116,7 @@ class Level(Component):
     def gen_level_entities(self, inventory, graphics, consts):
         map_ = Map(consts['map'])
         map_graphics = graphics
-        entities = OrderedDict()
+        entities = {}
         monster_entities = self.monster_generator.update(map_, graphics,
                                                          consts, self.depth)
         item_entities = self.item_generator.update(map_, graphics,

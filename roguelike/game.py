@@ -1,4 +1,3 @@
-from collections import OrderedDict
 import logging
 import os
 
@@ -86,7 +85,7 @@ class Game(object):
         self.panel_graphics = Graphics(self.colour,
                                        w=self.settings.SCREEN['w'],
                                        h=self.consts['panel']['rect']['h'])
-        self.entities = OrderedDict()
+        self.entities = {}
         self.inventory = None
         self.player = None
         self.render_params = None
@@ -199,10 +198,8 @@ class Game(object):
             for entity in self.entities.values():
                 if hasattr(entity.obj, 'update'):
                     entity.obj.update()
-        self.entities = OrderedDict(
-            [(k, v) for k, v in self.entities.iteritems()
-             if getattr(v.obj, 'alive', True)
-             ])
+        self.entities = {k: v for k, v in self.entities.iteritems()
+                         if getattr(v.obj, 'alive', True)}
 
     @property
     def state(self):
