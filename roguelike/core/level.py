@@ -4,13 +4,10 @@ from collections import OrderedDict
 import logging
 import random
 
-from core.entity import Component, EntityCollection, Point, Entity
+from core.entity import Component, EntityPack, Point, Entity
 from core.fov import FOV
-from core.graphics import Graphics
-from core.inventory import Inventory
 from core.mapping import Map
 from core.npc import NPC
-from core.player import Player
 from core.render import SimpleRender
 from items import get_item
 
@@ -54,9 +51,9 @@ class MonsterGenerator(Component):
             p = random.choice(population)
             npc = NPC(p, monsters[p], self.message)
             place_in_random_room(npc, entities, map_.rooms)
-            entity_key = "{}_{}".format(p, random.randint(0, 1e8))
+            entity_key = "monster_{}_{}".format(p, random.randint(0, 1e8))
             log.debug("Added {}".format(entity_key))
-            entities[entity_key] = EntityCollection(npc, graphics)
+            entities[entity_key] = EntityPack(npc, graphics)
         return entities
 
 
@@ -80,9 +77,9 @@ class ItemGenerator(Component):
             item_cls = get_item(p)
             item = item_cls(p, items[p], inventory, self.turn, self.message)
             place_in_random_room(item, entities, map_.rooms)
-            entity_key = "{}_{}".format(p, random.randint(0, 1e8))
+            entity_key = "item_{}_{}".format(p, random.randint(0, 1e8))
             log.debug("Added {}".format(entity_key))
-            entities[entity_key] = EntityCollection(item, graphics)
+            entities[entity_key] = EntityPack(item, graphics)
         return entities
 
 
@@ -104,7 +101,7 @@ class StairsGenerator(Component):
     def update(self, map_, graphics, consts):
         stairs = Stairs('down', consts['map']['stairs'])
         place_in_random_room(stairs, {}, map_.rooms)
-        return {'stairs': EntityCollection(stairs, graphics)}
+        return {'stairs': EntityPack(stairs, graphics)}
 
 
 class Level(Component):
@@ -130,6 +127,6 @@ class Level(Component):
         entities.update(stairs)
         entities.update(item_entities)
         entities.update(monster_entities)
-        entities['map'] = EntityCollection(map_, map_graphics)
+        entities['map'] = EntityPack(map_, map_graphics)
         self.fov = FOV(map_.tiles)
         return entities

@@ -6,7 +6,7 @@ from fysom import Fysom
 import yaml
 
 from core.colour import Colour
-from core.entity import Component, EntityCollection
+from core.entity import Component, EntityPack, priorities
 from core.font import Font
 from core.graphics import Graphics
 from core.inventory import Inventory
@@ -98,7 +98,7 @@ class Game(object):
         inventory_graphics = Graphics(self.graphics.colour,
                                       w=self.consts['inventory']['rect']['w'],
                                       h=self.consts['inventory']['rect']['h'])
-        self.entities['player'] = EntityCollection(player, player_graphics)
+        self.entities['player'] = EntityPack(player, player_graphics)
         self.inventory = Inventory(self.fsm, player, self.turn, self.consts['inventory'])
         self.player = self.entities['player'].obj
         level_entities = self.level_handler.gen_level_entities(self.inventory,
@@ -106,13 +106,9 @@ class Game(object):
                                                                self.consts)
         self.entities.update(level_entities)
         self.player.pos = self.entities['map'].obj.rooms[0].center
-        self.entities['panel'] = EntityCollection(self.panel, self.panel_graphics)
-        self.entities['inventory'] = EntityCollection(self.inventory, inventory_graphics)
+        self.entities['panel'] = EntityPack(self.panel, self.panel_graphics)
+        self.entities['inventory'] = EntityPack(self.inventory, inventory_graphics)
         self.render_params = self.init_render_params()
-        item_entities = []
-        for ent in item_entities:
-            self.entities[ent.key] = EntityCollection(ent, self.graphics)
-            self.inventory.add(ent)
         self.fov.recompute(self.player.pos.x, self.player.pos.y)
 
     @property
@@ -219,9 +215,13 @@ class Game(object):
         )
 
     def render(self):
-        for k, ent in self.entities.items():
-            extra = self.render_params.get(k, {})
-            ent.obj.render(ent.gfx, self.fov, **extra)
+        keys = self.entities.keys()
+        for p in priorities:
+            pkeys = [k for k in keys if k.startswith(p)]
+            for k in pkeys:
+                ent = self.entities[k]
+                extra = self.render_params.get(k, {})
+                ent.obj.render(ent.gfx, self.fov, **extra)
         self.graphics.flush()
 
     def resolve_collision(self, entity, prev):

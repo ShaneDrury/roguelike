@@ -2,7 +2,9 @@ from collections import namedtuple
 
 Point = namedtuple('Point', ['x', 'y'])
 
-EntityCollection = namedtuple('EntityCollection', ['obj', 'gfx'])
+EntityPack = namedtuple('EntityPack', ['obj', 'gfx'])
+
+priorities = ['stairs', 'player', 'item_', 'monster_', 'map', 'panel', 'inventory']
 
 
 class Entity(object):
